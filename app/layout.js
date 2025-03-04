@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,8 +25,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastContainer />
-        {children}
+        <GoogleOAuthProvider clientId="607074427926-9ppdtdm84h1ua1p3nuuprqm5gnhf28e0.apps.googleusercontent.com">
+          <ToastContainer />
+          {children}
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { LuMenu } from "react-icons/lu";
 
-const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room}) => {
+const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room, picture}) => {
 
     const [isShowLog, setIsShowLog] = useState(false)
     const wrapperRef = useRef(null); 

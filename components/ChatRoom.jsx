@@ -2,11 +2,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { LuMenu } from "react-icons/lu";
 
-const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room, picture}) => {
+const ChatRoom = ({messages, setMessages, socket, user, setLog, log, receiver}) => {
 
     const [isShowLog, setIsShowLog] = useState(false)
     const wrapperRef = useRef(null); 
-
     const scroller = useRef(null);
 
     useEffect(() => {
@@ -20,13 +19,8 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room, pictu
             setMessages((prev)=>[...prev, msg])
         })
 
-        socket.on('receiveLog', (msg)=>{
-            setLog((prev)=>[...prev, msg])
-        })
-
         return () => {
             socket.off('receive_msg')
-            socket.off('receiveLog')
         }
     },[])
 
@@ -49,7 +43,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room, pictu
       }, []);
 
     const seenDates = new Set();
-    const messagesWithFirstFlag = messages.filter((msg)=>(msg.room===room)).map(msg => {
+    const messagesWithFirstFlag = messages.map(msg => {
         const dateOnly = new Date(msg.datetime).toLocaleDateString();
         const isFirst = !seenDates.has(dateOnly);
         seenDates.add(dateOnly);
@@ -60,7 +54,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room, pictu
     <div className='h-[90vh] bg-slate-50 pb-2 w-full mb-2 flex flex-col'>
         <div className='bg-white h-[8vh] min-h-[60px] px-6 flex justify-between items-center'>
             <div>
-                <p className='text-2xl font-bold'>{room}</p>
+                <p className='text-2xl font-bold'>{receiver}</p>
             </div>
             <div ref={wrapperRef} className='relative'>
                 <LuMenu className="text-[29px] cursor-pointer" onClick={() => setIsShowLog(true)} />
@@ -79,7 +73,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, room, pictu
             </div>
         </div>
         <div className='p-6 h-[84vh] overflow-auto scrollbar-custom'>
-                {messagesWithFirstFlag.map((msg) => (
+                {messagesWithFirstFlag.filter((item)=>(item.receiver===receiver)).map((msg) => (
             <div key={msg.datetime} className="flex flex-col">
 
                 {msg.isFirst && (

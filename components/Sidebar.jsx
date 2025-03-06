@@ -1,15 +1,13 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import { FiEdit3 } from "react-icons/fi";
 import { IoSearchOutline } from "react-icons/io5";
 import { IoAdd } from "react-icons/io5";
 import { toast } from 'react-hot-toast';
 
-const Sidebar = ({userInfo, setReceiver, receiver}) => {
+const Sidebar = ({userInfo, setReceiver, friendInfo, setFriendInfo}) => {
   const [serchFriend, setSearchFriend] = useState('')
-  const [friendList, setFriendList] = useState(userInfo.current.friendList)
-  console.log(friendList)
 
   const updateFriendList = async(AddorRemove) => {
 
@@ -23,9 +21,8 @@ const Sidebar = ({userInfo, setReceiver, receiver}) => {
       const {data} = await axios.post('http://localhost:3001/api/user/edit-friendList',formData)
       if(data.success){
           toast.success('Friendlist Updated');
-          console.log(data.message)
-          userInfo.current.friendList = data.message
-          setFriendList(userInfo.current.friendList)
+          // userInfo.current.friendList = data.message
+          setFriendInfo(data.message)
       }else{
           toast.error(data.message);
       }
@@ -35,15 +32,11 @@ const Sidebar = ({userInfo, setReceiver, receiver}) => {
     }
   }
 
-  const getFriendInfo = async() => {
-
-  }
-
   return (
     <div className='bg-green-500 h-[100vh] p-4'>
       <div className='sticky'>
         <div className='w-full flex flex-row items-center'>
-          <img src={userInfo.current.image} className='w-16 rounded-full mr-4'/>
+          <img src={userInfo.current.image} className='w-16 rounded-full mr-4 relative'/>
           <div className='flex flex-col'>
             <div className='flex flex-row items-center'>
               <p className='text-2xl font-bold mr-2'>{userInfo.current.name}</p>
@@ -65,10 +58,17 @@ const Sidebar = ({userInfo, setReceiver, receiver}) => {
         </div>
       </div>
       <div className='mt-4 overflow-auto scrollbar-custom'>
-        {
-          friendList.map((item)=>(
-            <div key={item} className='w-full bg-white px-2' onClick={()=>setReceiver(item)}>
-              {item}
+        {friendInfo &&
+          friendInfo.map((item)=>(
+            <div key={item.mail} className='w-full bg-white flex flex-row items-center gap-3 mt-3 py-2' onClick={()=>{setReceiver({name:item.name, image:item.image, mail:item.mail.toLowerCase()}); }}>
+              <img src={item.image} className='w-16 rounded-full'></img>
+              <div className='flex flex-col w-full pr-2'>
+                <div className='flex flex-row justify-between items-center'>
+                  {item.name}
+                  <p className='text-xs text-gray-500'>2025/2/5</p>
+                </div>
+                <p className='text-xs mt-2'>here is the last conversation</p>
+              </div>
             </div>
           ))
         }

@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { LuMenu } from "react-icons/lu";
 
-const ChatRoom = ({messages, setMessages, socket, user, setLog, log, receiver}) => {
+const ChatRoom = ({messages, setMessages, socket, user, log, receiver, userInfo}) => {
 
     const [isShowLog, setIsShowLog] = useState(false)
     const wrapperRef = useRef(null); 
@@ -39,22 +39,24 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, receiver}) 
     
         return () => {
           document.removeEventListener('click', handleClickOutside);
-        };
-      }, []);
+            };
+    }, []);
 
-    const seenDates = new Set();
-    const messagesWithFirstFlag = messages.map(msg => {
+    const seenDatesByReceiver = new Set();
+    const messagesWithFirstFlag = messages.filter((item)=>(item.receiver === user.toLowerCase() && item.sender.toLowerCase() === receiver.mail) || (item.receiver === receiver.mail && item.sender.toLowerCase() === user.toLowerCase())).map(msg => {
         const dateOnly = new Date(msg.datetime).toLocaleDateString();
-        const isFirst = !seenDates.has(dateOnly);
-        seenDates.add(dateOnly);
+
+        const isFirst = !seenDatesByReceiver.has(dateOnly);
+        seenDatesByReceiver.add(dateOnly);
+
         return { ...msg, isFirst };
     });
     
-  return (
-    <div className='h-[90vh] bg-slate-50 pb-2 w-full mb-2 flex flex-col'>
-        <div className='bg-white h-[8vh] min-h-[60px] px-6 flex justify-between items-center'>
+  return receiver && (
+    <div className='bg-slate-50 pb-2 h-full w-full mb-2 flex flex-col'>
+        <div className='bg-white py-3 px-6 flex justify-between items-center'>
             <div>
-                <p className='text-2xl font-bold'>{receiver}</p>
+                <p className='text-2xl font-bold'>{receiver.name}</p>
             </div>
             <div ref={wrapperRef} className='relative'>
                 <LuMenu className="text-[29px] cursor-pointer" onClick={() => setIsShowLog(true)} />
@@ -72,8 +74,8 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, receiver}) 
                 }
             </div>
         </div>
-        <div className='p-6 h-[84vh] overflow-auto scrollbar-custom'>
-                {messagesWithFirstFlag.filter((item)=>(item.receiver===receiver)).map((msg) => (
+        <div className='p-6 overflow-auto scrollbar-custom'>
+                {messagesWithFirstFlag.filter((item) => (item.receiver === user.toLowerCase() && item.sender.toLowerCase() === receiver.mail) || (item.receiver === receiver.mail && item.sender.toLowerCase() === user.toLowerCase())).map((msg) => (
             <div key={msg.datetime} className="flex flex-col">
 
                 {msg.isFirst && (
@@ -82,8 +84,8 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, receiver}) 
                 </div>
                 )}
 
-                <div className={`flex flex-col gap-1 mb-4 ${msg.sender === user ? 'items-end' : 'items-start'}`}>
-                    <p className="text-xs text-gray-500">{msg.sender}</p>
+                <div className={`flex flex-col gap-1 mb-4 ${msg.sender.toLowerCase() === user.toLowerCase() ? 'items-end' : 'items-start'}`}>
+                    <p className="text-xs text-gray-500">{msg.sender.toLowerCase()===user?userInfo.current.name:receiver.name}</p>
                     <div className="flex flex-row gap-1 items-end">
 
                         {msg.sender === user && (
@@ -92,7 +94,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setLog, log, receiver}) 
                         </p>
                         )}
                         
-                        <p className={`w-fit px-4 py-1 rounded-full ${msg.sender===user?'bg-green-500 text-white':'bg-slate-200 text-black'}`}>{msg.msg}</p>
+                        <p className={`w-fit px-4 py-1 rounded-full ${msg.sender.toLowerCase()===user.toLowerCase()?'bg-green-500 text-white':'bg-slate-200 text-black'}`}>{msg.msg}</p>
                         
                         {msg.sender !== user && (
                         <p className="text-xs text-gray-500">

@@ -6,11 +6,10 @@ import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 
-const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail, userInfo}) => {
+const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail, userInfo, setFriendInfo, setMessages}) => {
 
     const [login, setLogin] = useState('Login')
     const [userPassword, setUserPssword] = useState('')
-    // const userInfo = useRef(null)
     const [picture, setPicture] = useState('')
 
     const loginToChat = async() => {
@@ -25,7 +24,8 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
                 setIsLogin(true)
                 toast.success('Log in');
                 userInfo.current = data.message
-                console.log(userInfo.current)
+                setFriendInfo(data.friendInfo)
+                getHistoryDialogue(data)
             }else{
                 toast.error(data.message);
             }
@@ -68,11 +68,29 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
                 setIsLogin(true)
                 toast.success('Log in');
                 userInfo.current = data.message
-                console.log(userInfo.current)
+                setFriendInfo(data.friendInfo)
+                getHistoryDialogue(data)
             }
         }catch(err){
             console.log(err)
         }
+    }
+
+    const getHistoryDialogue = (data) => {
+        let historyChat = []
+        for(let i =0; i<data.historyConversation.length; i++){
+            for(let inner=0; inner<data.historyConversation[i].msg.length; inner++){
+                let trasform = {
+                    sender: data.historyConversation[i].sender,
+                    msg: JSON.parse(data.historyConversation[i].msg[inner]).message,
+                    datetime: JSON.parse(data.historyConversation[i].msg[inner]).datetime,
+                    receiver: data.historyConversation[i].receiver,
+                }
+                historyChat.push(trasform)
+            }
+        }
+        setMessages([])
+        setMessages(historyChat)
     }
 
   return (
@@ -83,13 +101,13 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
             <div className='flex flex-col w-full max-w-[300px] gap-2'>
                 <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e)=>setUserMail(e.target.value)} value={userMail}></input>
                 <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e)=>setUserPssword(e.target.value)} value={userPassword}></input>
-                <button className={`font-bold py-2 rounded-full ${(userName==='' || userPassword==='')?'bg-gray-200 text-gray-600':'bg-green-500 text-white'}`} onClick={()=>loginToChat()}>Join Chat</button>
+                <button className={`font-bold py-2 rounded-full ${(userMail==='' || userPassword==='')?'bg-gray-200 text-gray-600':'bg-green-500 text-white'}`} onClick={()=>loginToChat()}>Join Chat</button>
             </div>:
             <div className='flex flex-col w-full max-w-[300px] gap-2'>
                 <input type='text' placeholder='Name' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e)=>setUserName(e.target.value)} value={userName}></input>
                 <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e)=>setUserMail(e.target.value)} value={userMail}></input>
                 <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e)=>setUserPssword(e.target.value)} value={userPassword}></input>
-                <button className={`font-bold py-2 rounded-full ${(userName==='' || userPassword==='')?'bg-gray-200 text-gray-600':'bg-green-500 text-white'}`} onClick={()=>singUp()}>Sign Up</button>
+                <button className={`font-bold py-2 rounded-full ${(userName==='' || userPassword==='' || userMail==='')?'bg-gray-200 text-gray-600':'bg-green-500 text-white'}`} onClick={()=>singUp()}>Sign Up</button>
             </div>
             }
             <div className="flex items-center my-4">

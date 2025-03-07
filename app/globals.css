@@ -2,7 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-.scrollbar-custom::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }

@@ -8,34 +8,18 @@ import { IoMdCloseCircle } from "react-icons/io";
 const InputField = ({socket, setMessages, receiver, userInfo}) => {
     const [message, setMessage] = useState('')
     const [image, setImage] = useState([])
-    console.log(image)
 
     const sendMessage = async() => {
-        const msg = {sender: userInfo.current.mail, msg: message, datetime: Date.now(), receiver: receiver.mail }
-        socket.emit('send_msg', msg)
-        setMessages((prev)=>[...prev, msg])
-        setMessage('')
-        try{
-          const msgData = {
+        const msgData = {
             message: message,
             datetime: Date.now(),
             emoji: [],
-            isRead: false
+            isRead: false,
           }
-          const formData = new FormData()
-          formData.append('sender', userInfo.current.mail)
-          formData.append('receiver', receiver.mail)
-          formData.append('msgDetail', JSON.stringify(msgData))
-  
-          const {data} = await axios.post('http://localhost:3001/api/user/save-record',formData)
-      
-          if(data.success){
-              console.log(data)
-          }
-        }catch(err){
-          console.log(err)
-        }
 
+        socket.emit('send_msg', { sender: userInfo.current.mail, receiver: receiver.mail, message: msgData, msgData, files: image });
+        setMessage('')
+        setImage([])
     }
 
     const handleRemoveImage = (i) => {
@@ -45,7 +29,7 @@ const InputField = ({socket, setMessages, receiver, userInfo}) => {
     }
 
   return (
-    <div className={`bg-white w-full py-3 ${image.length>0? 'rounded-t-lg':''}`}>
+    <div className={`bg-white border-t-[1px] w-full py-3 ${image.length>0? 'rounded-t-lg':''}`}>
       {image.length>0?
         <div className='w-full px-2 flex flex-row gap-2 justify-start items-center mb-4'>
           {image.map((img, index) => (

@@ -17,7 +17,6 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
             const formData = new FormData()
             formData.append('email', userMail)
             formData.append('password', userPassword)
-            // formData.append('image', file)
       
             const {data} = await axios.post('http://localhost:3001/api/user/log-in',formData)
             if(data.success){
@@ -82,13 +81,15 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
             for(let inner=0; inner<data.historyConversation[i].msg.length; inner++){
                 let trasform = {
                     sender: data.historyConversation[i].sender,
-                    msg: JSON.parse(data.historyConversation[i].msg[inner]).message,
-                    datetime: JSON.parse(data.historyConversation[i].msg[inner]).datetime,
+                    msg: data.historyConversation[i].msg[inner].message,
+                    datetime: data.historyConversation[i].msg[inner].datetime,
                     receiver: data.historyConversation[i].receiver,
+                    image: data.historyConversation[i].msg[inner].image,
                 }
                 historyChat.push(trasform)
             }
         }
+        console.log(historyChat)
         setMessages([])
         setMessages(historyChat)
     }

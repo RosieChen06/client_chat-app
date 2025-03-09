@@ -25,9 +25,10 @@ export default function Home() {
   const userInfo = useRef(null)
   const [friendInfo, setFriendInfo] = useState([])
   const [swithTo, setSwitchTo] = useState('Messages')
+  const [groupMember, setGroupMember] = useState([])
 
   return (
-    <div className="h-[100vh] overflow-hidden">
+    <div className="h-[100vh]">
       <Toaster />
       {!isLogin?
         <Login setUserName={setUserName} userName={userName} socket={socket} setIsLogin={setIsLogin} userMail={userMail} setUserMail={setUserMail} userInfo={userInfo} setFriendInfo={setFriendInfo} setMessages={setMessages}/>:
@@ -36,7 +37,18 @@ export default function Home() {
             <Option userInfo={userInfo} setIsLogin={setIsLogin} swithTo={swithTo} setSwitchTo={setSwitchTo}/>
           </div>
           <div className="w-[25%] pb-4 justify-center items-center flex-col">
-            <Sidebar userName={userName} userInfo={userInfo} setReceiver={setReceiver} receiver={receiver} friendInfo={friendInfo} setFriendInfo={setFriendInfo} swithTo={swithTo} messages={messages}/>
+            <Sidebar 
+              userName={userName} 
+              userInfo={userInfo} 
+              setReceiver={setReceiver} 
+              receiver={receiver} 
+              friendInfo={friendInfo} 
+              setFriendInfo={setFriendInfo} 
+              swithTo={swithTo} 
+              messages={messages}
+              groupMember={groupMember} 
+              setGroupMember={setGroupMember}
+              />
           </div>
           <div className="w-[70%] flex flex-col h-[100vh]">
             <ChatRoom
@@ -47,16 +59,11 @@ export default function Home() {
               receiver={receiver}
               userInfo={userInfo}
               friendInfo={friendInfo}
+              groupMember={groupMember} 
+              setFriendInfo={setFriendInfo}
+              setReceiver={setReceiver}
             />
           </div>
-          {/* <div className="h-fit w-full">
-            <InputField
-              socket={socket}
-              setMessages={setMessages}
-              receiver={receiver}
-              userInfo={userInfo}
-            />
-          </div> */}
         </div>
       }
     </div>

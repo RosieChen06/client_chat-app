@@ -23,7 +23,6 @@ const InputField = ({socket, setMessages, receiver, userInfo}) => {
     }
 
     const handleRemoveImage = (i) => {
-      console.log(i)
       let newArr = image.filter((_, index) => index !== i)
       setImage(newArr)
     }

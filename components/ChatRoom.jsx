@@ -25,8 +25,25 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
             setMessages((prev)=>[...prev, msg.msgData])
         })
 
+        socket.on('exit_done', (msg) => {
+        
+            if (msg.msgData.account.mail === userInfo.current.mail) {
+                userInfo.current = msg.msgData.account;
+                setIsShowLog(false);
+                setReceiver({ name: '', mail: '', image: '' });
+            } else {
+        
+                setFriendInfo((prev) => {
+                    return prev.map((item) => {
+                        return item.mail === msg.msgData.account.mail ? msg.msgData.account : item;
+                    });
+                });
+            }
+        });
+
         return () => {
             socket.off('receive_msg')
+            socket.off('exit_done')
         }
     },[])
 
@@ -55,33 +72,9 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
     });
 
     const quitGroup = async(member) => {
-        const formData = new FormData()
-        formData.append('group_member', member)
-        formData.append('group_id', receiver.mail + '%' + receiver.name + '%')
-        formData.append('member_left', groupMember.length)
-
-        const {data} = await axios.post('http://localhost:3001/api/user/exist-group',formData)
-    
-        if(data.success){
-            userInfo.current=data.message
-            setFriendInfo((prev) =>
-                prev.map((item) =>
-                  item.mail === member
-                    ? { ...item, groupList: item.groupList.filter((i) => i !== group) }
-                    : item
-                )
-              );
-            setIsShowLog(false)
-            setReceiver({
-            name: '',
-            mail: '',
-            image: ''
-            })
-            console.log(friendInfo)
-            console.log(userInfo.current)
-        }
+        socket.emit('exit_group', { group_member: member, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });
     }
-    
+
   return receiver && (
     <div className='h-full flex flex-col relative'>
         <div className='bg-slate-50 pb-2 w-full mb-2 flex-grow overflow-auto'>
@@ -95,7 +88,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
                 </div>
             </div>
             <div className='p-6 overflow-y-scroll'>
-                    {messagesWithFirstFlag.filter((item) => (item.receiver === user.toLowerCase() && item.sender.toLowerCase() === receiver.mail) || (item.receiver === receiver.mail && item.sender.toLowerCase() === user.toLowerCase()) || (item.receiver === receiver.mail || item.sender === receiver.mail)).map((msg) => (
+                    {messagesWithFirstFlag.filter((item) => (item.receiver === user.toLowerCase() && item.sender.toLowerCase() === receiver.mail) || (String(item.receiver) === String(receiver.mail) && String(item.sender.toLowerCase()) === String(user.toLowerCase())) || (String(item.receiver) === String(receiver.mail) || String(item.sender) === String(receiver.mail))).map((msg) => (
                 <div key={msg.datetime} className="flex flex-col">
 
                     {msg.isFirst && (

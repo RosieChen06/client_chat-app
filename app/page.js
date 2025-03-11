@@ -34,7 +34,7 @@ export default function Home() {
         <Login setUserName={setUserName} userName={userName} socket={socket} setIsLogin={setIsLogin} userMail={userMail} setUserMail={setUserMail} userInfo={userInfo} setFriendInfo={setFriendInfo} setMessages={setMessages}/>:
         <div className="w-full flex flex-row h-[100vh]">
           <div className="w-[5%]">
-            <Option userInfo={userInfo} setIsLogin={setIsLogin} swithTo={swithTo} setSwitchTo={setSwitchTo}/>
+            <Option userInfo={userInfo} setIsLogin={setIsLogin} swithTo={swithTo} setSwitchTo={setSwitchTo} setReceiver={setReceiver}/>
           </div>
           <div className="w-[25%] pb-4 justify-center items-center flex-col">
             <Sidebar 
@@ -48,6 +48,8 @@ export default function Home() {
               messages={messages}
               groupMember={groupMember} 
               setGroupMember={setGroupMember}
+              socket={socket}
+              setSwitchTo={setSwitchTo}
               />
           </div>
           <div className="w-[70%] flex flex-col h-[100vh]">

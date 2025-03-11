@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { BsThreeDots } from "react-icons/bs";
 import InputField from './InputField';
-import { RiDeleteBin5Line } from "react-icons/ri";
 import { MdExitToApp } from "react-icons/md";
 import { IoCloseOutline } from "react-icons/io5";
 import axios from 'axios';
@@ -12,7 +11,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
     const [isShowLog, setIsShowLog] = useState(false)
     const wrapperRef = useRef(null); 
     const scroller = useRef(null);
-    const [isShowMore, setIsShowMore] = useState(2)
+    const [isShowMore, setIsShowMore] = useState(false)
 
     useEffect(() => {
         if(!scroller.current) return
@@ -38,6 +37,13 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
                         return item.mail === msg.msgData.account.mail ? msg.msgData.account : item;
                     });
                 });
+            }
+            if(msg.msgData.member_left==='1'){
+                setMessages((prev)=>{
+                    return prev.filter((item)=>(
+                        item.receiver !== msg.msgData.group_id && item.sender !== msg.msgData.group_id
+                    ))
+                })
             }
         });
 
@@ -75,6 +81,8 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
         socket.emit('exit_group', { group_member: member, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });
     }
 
+
+    console.log(receiver)
   return receiver && (
     <div className='h-full flex flex-col relative'>
         <div className='bg-slate-50 pb-2 w-full mb-2 flex-grow overflow-auto'>
@@ -82,7 +90,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
                 <div className='px-6 flex flex-row justify-between w-full items-center'>
                     <div className='flex flex-col'>
                         <p className='text-xl font-bold'>{receiver.name}</p>
-                        <p className='text-xs text-gray-500'>{typeof receiver.mail==='number'? groupMember.length + ' Members':''}</p>
+                        <p className='text-xs text-gray-500'>{receiver.mail&& !receiver.mail.includes('@')? groupMember.length + ' Members':''}</p>
                     </div>
                     <BsThreeDots className="text-[22px] text-gray-600 cursor-pointer" onClick={() => setIsShowLog(true)} />
                 </div>
@@ -113,7 +121,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
                                         ))
                                         ) : null
                                     }
-                                    <p className={`w-fit px-4 py-1 rounded-b-lg ${msg.sender.toLowerCase()===user.toLowerCase()?'bg-green-500 rounded-l-lg text-white':'bg-slate-200 rounded-r-lg text-black'}`}>{msg.msg}</p>
+                                    {msg.msg.length>0?<p className={`w-fit px-4 py-1 rounded-b-lg ${msg.sender.toLowerCase()===user.toLowerCase()?'bg-green-500 rounded-l-lg text-white':'bg-slate-200 rounded-r-lg text-black'}`}>{msg.msg}</p>:''}
                                 </div>
                                 {msg.sender !== user && (
                                 <p className="text-xs text-gray-500">
@@ -146,28 +154,25 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
                 ${isShowLog ? "translate-x-0" : "translate-x-full"}`}>
             <div className="w-full h-full flex flex-col justify-center items-center relative">
                 <div className='flex flex-col gap-2 justify-center items-center'>
-                    <div className={`flex ${groupMember.length>2?'flex-col': 'flex-row'} gap-2 justify-center items-center`}>
-                        {groupMember.slice(0,1).map((i)=>(
-                            <img key={i.image} src={i.image} className='rounded-full w-12'></img>
-                        ))}
-                        <div className='flex flex-row gap-2'>
-                            {groupMember.slice(1,3).map((i)=>(
-                                <img key={i.image} src={i.image} className='rounded-full w-12'></img>
-                            ))}
-                        </div>
-                    </div>
+                {!receiver.mail?.includes('@') || false ? <div className={`flex ${groupMember.length>2?'flex-col': 'flex-row'} gap-2 justify-center items-center`}>
+              </div>:''}
+              {!receiver.mail?.includes('@') ? <div className={`flex ${groupMember.length>2?'flex-col': 'flex-row'} gap-2 justify-center items-center`}>
+                {groupMember.slice(0,1).map((i)=>(
+                    <img key={i.image} src={i.image} className='rounded-full w-12'></img>
+                ))}
+                <div className='flex flex-row gap-2'>
+                  {groupMember.slice(1,3).map((i)=>(
+                      <img key={i.image} src={i.image} className='rounded-full w-12'></img>
+                  ))}
+                </div>
+              </div>:''}
+              {receiver.mail?.includes('@') ? <img src={receiver.image} className='rounded-full w-24'></img>:''}
                     <h1 className='mt-4 font-bold text-lg'>{receiver.name}</h1>
-                    <div className='flex flex-row gap-2 items-center'>
+                    {!receiver.mail?.includes('@') ?<div className='flex flex-row gap-2 items-center'>
                         <p className='text-xs text-gray-500'>{groupMember.length} members</p>
                         <p className='px-3 bg-slate-100 cursor-pointer rounded-full' onClick={() => setIsShowMore(true)}>&gt;</p>
-                    </div>
+                    </div>:''}
                     <div className='flex flex-row gap-6 mt-12 items-center'>
-                        {/* <div className='flex flex-col gap-3 justify-center items-center'>
-                            <div className='p-4 bg-slate-100 rounded-full'>
-                                <RiDeleteBin5Line className='w-5 h-5'/>
-                            </div>
-                            <p className='text-gray-600'>Delete</p>
-                        </div> */}
                         <div className='flex flex-col gap-3 justify-center items-center'>
                             <div className='p-4 bg-slate-100 rounded-full cursor-pointer' onClick={()=>quitGroup(userInfo.current.mail)}>
                                 <MdExitToApp className='w-5 h-5'/>

@@ -4,7 +4,7 @@ import { AiFillMessage } from "react-icons/ai";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { RiLogoutCircleLine } from "react-icons/ri";
 
-const Option = ({userInfo, setSwitchTo, swithTo}) => {
+const Option = ({userInfo, setSwitchTo, swithTo, setReceiver}) => {
   return (
     <div className="flex flex-col justify-start items-center border-r-[1px] h-full">
         {/* 按鈕區塊 */}
@@ -12,7 +12,7 @@ const Option = ({userInfo, setSwitchTo, swithTo}) => {
             <div className={`p-2 rounded-md cursor-pointer ${swithTo==='Messages'?'bg-slate-200':'hover:bg-slate-200'}`} onClick={()=>setSwitchTo('Messages')}>
                 <AiFillMessage className="text-[24px] text-gray-600" />
             </div>
-            <div className={`p-2 rounded-md cursor-pointer ${swithTo==='People'?'bg-slate-200':'hover:bg-slate-200'}`} onClick={()=>setSwitchTo('People')}>
+            <div className={`p-2 rounded-md cursor-pointer ${swithTo==='People'?'bg-slate-200':'hover:bg-slate-200'}`} onClick={()=>{setSwitchTo('People'); setReceiver({name:'', mail:'', image:''})}}>
                 <BsFillPeopleFill className="text-[24px] text-gray-600" />
             </div>
             <div className='bg-transparent p-2 rounded-md cursor-pointer hover:bg-slate-200' onClick={()=>setIsLogin(false)}>

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 
-const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail, userInfo, setFriendInfo, setMessages}) => {
+const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
 
     const [login, setLogin] = useState('Login')
     const [userPassword, setUserPssword] = useState('')
@@ -20,6 +20,8 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
       
             const {data} = await axios.post('http://localhost:3001/api/user/log-in',formData)
             if(data.success){
+                console.log(data)
+                setUserImage(data.message.image)
                 setIsLogin(true)
                 toast.success('Log in');
                 userInfo.current = data.message
@@ -64,6 +66,7 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
             const {data} = await axios.post('http://localhost:3001/api/user/google-log-in',formData)
         
             if(data.success){
+                setUserImage(data.message.image)
                 setIsLogin(true)
                 toast.success('Log in');
                 userInfo.current = data.message

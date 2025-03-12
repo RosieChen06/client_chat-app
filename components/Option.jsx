@@ -1,10 +1,11 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AiFillMessage } from "react-icons/ai";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { RiLogoutCircleLine } from "react-icons/ri";
 
-const Option = ({userInfo, setSwitchTo, swithTo, setReceiver}) => {
+const Option = ({setGroupName, userInfo, setSwitchTo, swithTo, setReceiver, setIsProfileEdit, userImage}) => {
+
   return (
     <div className="flex flex-col justify-start items-center border-r-[1px] h-full">
         {/* 按鈕區塊 */}
@@ -21,8 +22,8 @@ const Option = ({userInfo, setSwitchTo, swithTo, setReceiver}) => {
         </div>
 
         {/* 用戶圖片 */}
-        <div className="mt-4 flex justify-center items-center absolute bottom-4 cursor-pointer">
-            <img src={userInfo.current.image} className="w-12 h-12 rounded-full" />
+        <div className="mt-4 flex justify-center items-center absolute bottom-4 cursor-pointer" onClick={()=>{setIsProfileEdit(true); setGroupName(userInfo.current.name)}}>
+            <img src={userImage} className="w-12 h-12 object-cover rounded-full" />
         </div>
     </div>
 

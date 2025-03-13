@@ -4,7 +4,7 @@ import { AiFillMessage } from "react-icons/ai";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { RiLogoutCircleLine } from "react-icons/ri";
 
-const Option = ({setGroupName, userInfo, setSwitchTo, swithTo, setReceiver, setIsProfileEdit, userImage}) => {
+const Option = ({setGroupName, userInfo, setSwitchTo, swithTo, setReceiver, setIsProfileEdit, userImage, setIsLogin}) => {
 
   return (
     <div className="flex flex-col justify-start items-center border-r-[1px] h-full">

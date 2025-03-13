@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-hot-toast';
 import { MdOutlineGroupAdd } from "react-icons/md";
@@ -13,6 +13,8 @@ import { MdPersonRemoveAlt1 } from "react-icons/md";
 import { IoReturnUpBackOutline } from "react-icons/io5";
 import { AiOutlineWechat } from "react-icons/ai";
 import { IoSearchOutline } from "react-icons/io5";
+import { RxExit } from "react-icons/rx";
+import { GoPersonAdd } from "react-icons/go";
 
 const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiver, friendInfo, setFriendInfo, setSwitchTo, swithTo, messages, groupMember, setGroupMember, isProfileEdit, setIsProfileEdit, setUserImage, setMessages}) => {
   const [addGroup, setAddGroup] = useState(false)
@@ -22,44 +24,73 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
   const [isShowMore, setIsShowMore] = useState(false)
   const [isRemoveCheck, setIsRemoveCheck] = useState(false)
   const [searchTerm, setSearhTerm] = useState('')
+  const [isInvite, setIsInvite] = useState(false)
+  const [isEdit, setIsEdit] = useState(false)
 
   // 處理選擇變更
   const handleChange = (selected) => {
       setSelectedOptions(selected);
   };
 
-  const addAFriend = async() => {
-    if(groupName.length===0){
-      return
-    }else if(!groupName.includes('@')){
-      toast.error('Please enter a valid email')
-      return
-    }else if(userInfo.current.friendList.includes(groupName.toLowerCase())){
-      toast.error('Already exist')
-      return
-    }
+  const changeGroupName = () => {
 
-    socket.emit('add_friend', { friend: groupName.toLowerCase(), adder: userInfo.current.mail, deleteOrAdd: 'add' });
+    const updatedGroupMember = groupMember.map(member => ({
+      ...member,
+      groupList: member.groupList.map(item => 
+        item === receiver.mail+'%'+receiver.name+'%' ? receiver.mail+'%'+groupName+'%' : item // 替換 'value2' 為 'newValue2'
+      )
+    }));
+    socket.emit('edit-groupName', { member: JSON.stringify(updatedGroupMember), groupname: groupName });
   }
 
-  const [optionsData, setOptionsData] = useState(userInfo.current.friendList);
+  const addAFriend = async(type) => {
+    if(type==='add'){
+      if(groupName.length===0){
+        return
+      }else if(!groupName.includes('@')){
+        toast.error('Please enter a valid email')
+        return
+      }else if(userInfo.current.friendList.includes(groupName.toLowerCase())){
+        toast.error('Already exist')
+        return
+      }
+      socket.emit('add_friend', { friend: groupName.toLowerCase(), adder: userInfo.current.mail, deleteOrAdd: 'add' });
+    }else{
+      socket.emit('delete_friend', { friend: receiver.mail, adder: userInfo.current.mail, deleteOrAdd: 'remove' });
+    }
+  }
+
+  const optionsData = useMemo(() => {
+    return isInvite
+      ? friendInfo.filter((item) => !groupMember.some((i) => i.mail === item.mail))
+      : friendInfo;
+  }, [friendInfo, groupMember, isInvite]);
 
   const options = optionsData.map(option => ({
-      value: option, 
-      label: option  
+      value: option.mail, 
+      label: option.mail 
   }));
 
-  const createGroup = async() => {
+  const createGroup = async(type) => {
 
     let groupMember = []
-    let group_id = Date.now()
+    if(type==='create'){
+      let group_id = Date.now()
 
-    for(let i=0; i<selectedOptions.length; i++){
-      groupMember.push(selectedOptions[i].value)
+      for(let i=0; i<selectedOptions.length; i++) {
+        groupMember.push(selectedOptions[i].value)
+      }
+
+      groupMember.push(userInfo.current.mail)
+      socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: group_id + '%' + groupName + '%' });
+    }else{
+
+      for(let i=0; i<selectedOptions.length; i++) {
+        groupMember.push(selectedOptions[i].value)
+      }
+
+      socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: receiver.mail + '%' + receiver.name + '%' });
     }
-
-    groupMember.push(userInfo.current.mail)
-    socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: group_id + '%' + groupName + '%' });
   }
 
   useEffect(()=>{
@@ -82,6 +113,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
     setAddGroup(false)
     setSelectedOptions([])
     setGroupName('')
+    setIsInvite(false)
     });
 
     socket.on('friend_added', (msg) => {
@@ -106,6 +138,46 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
         }
       }
       setAddFriend(false)
+      setGroupName('')
+    });
+
+    socket.on('friend_remove', (msg) => {
+
+      for(let i =0; i<msg.msgData.length; i++){
+        if (msg.msgData[i].mail === userInfo.current.mail) {
+          userInfo.current = msg.msgData[i]
+          setReceiver({
+            name: '',
+            mail: '',
+            image: '',
+          })
+        } 
+        else {
+          setFriendInfo((prev) => prev.filter((item) => item.mail !== msg.msgData[i].mail));
+        }
+      }
+    });
+
+    socket.on('groupName_change', (msg) => {
+
+      for(let i =0; i<msg.msgData.length; i++){
+        if (msg.msgData[i].mail === userInfo.current.mail) {
+          userInfo.current = msg.msgData[i]
+        } 
+        else {
+          setFriendInfo((prev) => {
+            return prev.map((item) => {
+                return item.mail === msg.msgData[i].mail ? msg.msgData[i] : item;
+            });
+          });
+        }
+      }
+      
+      setReceiver(prev => ({
+        ...prev,
+        name: msg.groupname,
+      }));
+      setIsEdit(false)
       setGroupName('')
     });
 
@@ -157,6 +229,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
     return () => {
         socket.off('group_created')
         socket.off('friend_added')
+        socket.off('friend_remove')
         socket.off('exit_done')
     }
   },[])
@@ -166,8 +239,12 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
     return { name, mail, image: '' }; 
   });
   
-  // 合併兩個陣列
-  const result = [...convertedArr2, ...friendInfo];
+  // 合併兩個陣列 
+  const result = useMemo(() => [...convertedArr2, ...friendInfo], [convertedArr2, friendInfo]);
+
+  const filteredResult = searchTerm
+  ? result.filter(item => item.name.toLowerCase().startsWith(searchTerm.toLowerCase()))
+  : result;
 
   const chatRecord = new Set();
 
@@ -281,8 +358,8 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
       </div>
       <div className='mt-4 overflow-auto scrollbar-custom h-[94%]'>
         {roomFlag &&
-          (swithTo === 'Messages' ? roomFlag.filter((i) => i.isShow === true) : result)?.map((item)=>(
-            <div key={item.datetime?item.datetime:item.mail} className={`w-full px-2 cursor-pointer rounded-md bg-white flex flex-row items-center gap-3 mt-3 py-2 ${receiver.mail === (item ? item.sender : null) || receiver.mail === (item ? item.receiver : null) || receiver.mail === (item ? item.mail : null) ?'bg-slate-300':'hover:bg-gray-100'}`} onClick={()=>receiverInfo(item)} >
+          (swithTo === 'Messages' ? roomFlag.filter((i) => i.isShow === true) : filteredResult)?.map((item)=>(
+            <div key={item.datetime?item.datetime:item.mail} className={`w-full px-2 cursor-pointer rounded-md bg-white flex flex-row items-center gap-3 mt-3 py-2 ${receiver.mail === (item ? item.sender : null) || receiver.mail === (item ? item.receiver : null) || receiver.mail === (item ? item.mail : null) ?'bg-sky-100':'hover:bg-gray-100'}`} onClick={()=>receiverInfo(item)} >
               {swithTo==='People' && item && item.mail.includes('@')? <img src={item.image} className="w-12 h-12 object-cover rounded-full" />
               :(item? item.receiver: null) === userInfo.current.mail
                 ? friendInfo.find((i) => i.mail === (item? item.sender: null))?.image
@@ -337,7 +414,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
         }
       </div>
       <div className={`fixed inset-0 bg-gray-300 bg-opacity-50 transition-opacity duration-300
-        ${addGroup || addFriend || isProfileEdit || isRemoveCheck ? "opacity-100 visible z-40" : "opacity-0 invisible z-10"}`} >
+        ${addGroup || addFriend || isProfileEdit || isRemoveCheck || isInvite || isEdit ? "opacity-100 visible z-40" : "opacity-0 invisible z-10"}`} >
       </div>
       <div className={`fixed right-0 top-0 rounded-l-3xl bg-white flex flex-col p-4 w-[70%] h-[100vh] min-w-[250px] gap-2 
             transform transition-transform duration-[700ms] ease-in-out shadow-lg z-30
@@ -356,7 +433,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
               </div>:''}
               {receiver.mail?.includes('@') ? <img src={receiver.image} className='rounded-full w-24 h-24 object-cover'></img>:''}
               
-              <h1 className='mt-4 font-bold text-lg'>{ receiver.name }</h1>
+              <h1 className="mt-4 font-bold text-lg flex items-center gap-2">{ receiver.name }<span className='cursor-pointer' onClick={()=>{setIsEdit(true); setGroupName(receiver.name)}}>{receiver.mail?.includes('@') ? '':<MdEdit />}</span></h1>
               {!receiver.mail?.includes('@') ?<div className='flex flex-row gap-2 items-center'>
                         <p className='text-xs text-gray-500'>{groupMember.length} members</p>
                         <p className='px-3 bg-slate-100 cursor-pointer rounded-full' onClick={() => setIsShowMore(true)}>&gt;</p>
@@ -368,14 +445,29 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                       </div>
                       <p className='text-gray-600'>Chat</p>
                   </div>
+                  {!receiver.mail?.includes('@') ?
+                  <div className='flex flex-col gap-3 justify-center items-center' onClick={()=> setIsInvite(true)}>
+                      <div className='p-4 bg-slate-100 rounded-full cursor-pointer'>
+                          <GoPersonAdd className='w-5 h-5'/>
+                      </div>
+                      <p className='text-gray-600'>Invite</p>
+                  </div>:''
+                  }
+                  {!receiver.mail?.includes('@') ?
                   <div className='flex flex-col gap-3 justify-center items-center' onClick={()=> quitGroup()}>
                       <div className='p-4 bg-slate-100 rounded-full cursor-pointer'>
-                          <RiDeleteBin5Line className='w-5 h-5'/>
+                          <RxExit className='w-5 h-5'/>
                       </div>
                       <p className='text-gray-600'>Exit</p>
+                  </div>:
+                  <div className='flex flex-col gap-3 justify-center items-center' onClick={()=> addAFriend('delete')}>
+                    <div className='p-4 bg-slate-100 rounded-full cursor-pointer'>
+                        <RiDeleteBin5Line className='w-5 h-5'/>
+                    </div>
+                    <p className='text-gray-600'>Delete</p>
                   </div>
+                  }
               </div>
-              <p></p>
             </div>:
             <div className='flex justify-center items-center flex-col w-full'>
               <AiOutlineWechat className='text-[120px] text-sky-500 mb-4'/>
@@ -383,7 +475,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                 <input 
                   type="text" 
                   className="border border-gray-300 rounded-sm pl-3 pr-10 py-2 w-full"
-                  placeholder="Search by name..."
+                  placeholder="Search by name..." value={searchTerm} onChange={(e)=>setSearhTerm(e.target.value)}
                 />
                 <div className="absolute top-1/2 right-2 -translate-y-1/2 bg-sky-500 rounded-sm p-2">
                   <IoSearchOutline className="text-white" />
@@ -418,7 +510,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                               <p>Remove</p>
                             </div>
                             {!userInfo.current.friendList.includes(item.mail)?
-                            <div className='flex flex-row gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-green-600 bg-slate-50 items-center' onClick={()=>{setGroupName(item.mail); addAFriend()}}>
+                            <div className='flex flex-row gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-green-600 bg-slate-50 items-center' onClick={()=>{setGroupName(item.mail); addAFriend('add')}}>
                               <IoPersonAddSharp className='text-[17px]'/>
                               <hr className='h-full'/>
                               <p>Add Friend</p>
@@ -438,42 +530,41 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                               <p>Chat</p>
                             </div>
                             }
-                        </div>:''
+                        </div>:<p className='px-2 py-1 rounded-full text-xs border-[1px] text-green-500 border-green-500'>YOU</p>
                         }
                       </div>
                     ))}
                 </div>
             </div>
         </div>
-
     </div>
-      {addGroup || addFriend || isProfileEdit || isRemoveCheck?     
+      {addGroup || addFriend || isProfileEdit || isRemoveCheck || isInvite || isEdit ?     
         <div className="fixed top-1/2 left-1/2 w-96 h-fit min-h-80 bg-white transform -translate-x-1/2 -translate-y-1/2 shadow-lg p-4 rounded-lg z-50">
-          <button onClick={()=>{setAddGroup(false); setSelectedOptions([]); setGroupName(''); setAddFriend(false); setIsProfileEdit(false); setIsRemoveCheck(false)}} className='flex justify-end w-full'><IoCloseOutline /></button>
+          <button onClick={()=>{setAddGroup(false); setSelectedOptions([]); setGroupName(''); setAddFriend(false); setIsProfileEdit(false); setIsRemoveCheck(false); setIsInvite(false); setIsEdit(false)}} className='flex justify-end w-full'><IoCloseOutline /></button>
           <div>
-            <h1 className='text-xl font-extrabold'>{isRemoveCheck?'Edit Member':isProfileEdit?'Profile':swithTo==='Messages'?'Create a group chat':'Add a friend'}</h1>
-            <p className='text-xs mt-2 text-gray-500 font-normal'>{isRemoveCheck?'':isProfileEdit?'Edit your public information':swithTo==='Messages'?'Create a chat with more than 2 people.':'Add a friend by mail.'}</p>
+            <h1 className='text-xl font-extrabold'>{isEdit?'Edit group name':isInvite?'Invite Friend':isRemoveCheck?'Edit Member':isProfileEdit?'Profile':swithTo==='Messages'?'Create a group chat':'Add a friend'}</h1>
+            <p className='text-xs mt-2 text-gray-500 font-normal'>{isEdit?'Group name can not include %.':isInvite?'Add friends to the group by mail':isRemoveCheck?'':isProfileEdit?'Edit your public information':swithTo==='Messages'?'Create a chat with more than 2 people.':'Add a friend by mail.'}</p>
           </div>
           <div className='flex flex-col gap-6 mt-8'>
             <div>
             <p>
               {isRemoveCheck
                 ? <>Are you sure you want to remove <strong>{isRemoveCheck[1]}</strong> from <strong>{receiver.name}</strong>?</>
-                : (isProfileEdit || swithTo === 'Messages')
+                : isInvite ?'':(isProfileEdit || swithTo === 'Messages' || isEdit)
                   ? 'Name'
                   : 'Email'}
             </p>
-              {!isRemoveCheck?<input type='text' value={groupName} onChange={(e)=>setGroupName(e.target.value)} className='border-[1px] px-2 border-gray-300 rounded-md w-full h-8 mt-3'></input>:''}
+              {!isRemoveCheck && !isInvite ? <input type='text' value={groupName} onChange={(e)=>setGroupName(e.target.value)} className='border-[1px] px-2 border-gray-300 rounded-md w-full h-8 mt-3'></input>:''}
             </div>
-            {swithTo==='Messages' && !isProfileEdit?<div>
-              <p>Members</p>
+            {swithTo==='Messages' && !isProfileEdit || isInvite?<div>
+              <p className='mb-4'>Members</p>
               <Select 
                   closeMenuOnSelect={false} 
                   defaultValue={[options[4], options[5]]} 
                   isMulti 
                   options={options} 
-                  onChange={handleChange} // 當選擇變更時，調用 handleChange
-                  value={selectedOptions}
+                  onChange={handleChange} 
+                  value={selectedOptions} 
               />
             </div>:''}
             {isProfileEdit?
@@ -493,14 +584,18 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
           </div>
           <hr className='w-full mt-12'/>
           <div className='mt-4 flex gap-4 justify-end'>
-            <button className='py-1 px-2 bg-slate-200 rounded-md' onClick={()=>{setAddGroup(false); setSelectedOptions([]); setGroupName(''); setAddFriend(false); setIsProfileEdit(false); setIsRemoveCheck(false)}}>Cancel</button>
-            {isProfileEdit?
-            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>addAFriend()}>Add</button>:
+            <button className='py-1 px-2 bg-slate-200 rounded-md' onClick={()=>{setAddGroup(false); setSelectedOptions([]); setGroupName(''); setAddFriend(false); setIsProfileEdit(false); setIsRemoveCheck(false); setIsInvite(false); setIsEdit(false)}}>Cancel</button>
+            {isEdit?
+            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>changeGroupName()}>Change</button>:
+            isProfileEdit?
+            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>changeProfile()}>Save</button>:
             isRemoveCheck?
             <button className='py-1 px-2 bg-red-500 text-white rounded-md' onClick={()=>removePeople(isRemoveCheck[0], receiver.mail)}>Sure</button>:
             swithTo==='Messages'?
-            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>createGroup()}>Create</button>:
-            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>changeProfile()}>Save</button>
+            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>createGroup('create')}>Create</button>:
+            isInvite?
+            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>createGroup('invite')}>Invite</button>:
+            <button className='py-1 px-2 bg-sky-400 text-white rounded-md' onClick={()=>addAFriend('add')}>Add</button>
             }
           </div>
         </div>:''

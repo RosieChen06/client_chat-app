@@ -1,10 +1,12 @@
 'use client'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
+import { useGoogleLogin } from '@react-oauth/google';
+import { FcGoogle } from "react-icons/fc";
 
 const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
 
@@ -20,7 +22,6 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
       
             const {data} = await axios.post('http://localhost:3001/api/user/log-in',formData)
             if(data.success){
-                console.log(data)
                 setUserImage(data.message.image)
                 setIsLogin(true)
                 toast.success('Log in');
@@ -92,53 +93,63 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
                 historyChat.push(trasform)
             }
         }
-        console.log(historyChat)
         setMessages([])
         setMessages(historyChat)
     }
 
+    const googleLogin = useGoogleLogin({
+        onSuccess: (tokenResponse) => {
+            fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokenResponse.access_token}`)
+                .then(res => res.json())
+                .then(userInfo => {
+                    console.log(userInfo);
+                    getUserByGoogle(userInfo.given_name, userInfo.email, userInfo.picture);
+                    setUserName(userInfo.given_name);
+                    setUserMail(userInfo.email);
+                    setPicture(userInfo.picture);
+                })
+                .catch(err => console.error("Google Login Error: ", err));
+        },
+        onError: () => {
+            console.log('Login Failed');
+        },
+    });
+
   return (
-    <div className='w-full flex justify-center items-center h-[100vh] flex-col'>
-        <p className='mb-12 font-extrabold text-green-500 text-[40px]'>{login}</p>
-        <div className='flex flex-col w-full max-w-[300px] gap-2'>
-            {login==='Login'?
+    <div className='w-full flex justify-center items-center h-[100vh] flex-col relative'>
+        <div className='flex flex-col items-center z-10 min-w-[290px]'>
+            <p className='mb-12 font-extrabold text-green-500 text-[40px]'>{login}</p>
             <div className='flex flex-col w-full max-w-[300px] gap-2'>
-                <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e)=>setUserMail(e.target.value)} value={userMail}></input>
-                <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e)=>setUserPssword(e.target.value)} value={userPassword}></input>
-                <button className={`font-bold py-2 rounded-full ${(userMail==='' || userPassword==='')?'bg-gray-200 text-gray-600':'bg-green-500 text-white'}`} onClick={()=>loginToChat()}>Join Chat</button>
-            </div>:
-            <div className='flex flex-col w-full max-w-[300px] gap-2'>
-                <input type='text' placeholder='Name' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e)=>setUserName(e.target.value)} value={userName}></input>
-                <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e)=>setUserMail(e.target.value)} value={userMail}></input>
-                <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e)=>setUserPssword(e.target.value)} value={userPassword}></input>
-                <button className={`font-bold py-2 rounded-full ${(userName==='' || userPassword==='' || userMail==='')?'bg-gray-200 text-gray-600':'bg-green-500 text-white'}`} onClick={()=>singUp()}>Sign Up</button>
+                {login === 'Login' ? (
+                    <div className='flex flex-col w-full max-w-[300px] gap-2'>
+                        <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserMail(e.target.value)} value={userMail}></input>
+                        <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPassword(e.target.value)} value={userPassword}></input>
+                        <button className={`font-bold py-2 rounded-full ${(userMail === '' || userPassword === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`} onClick={() => loginToChat()}>Join Chat</button>
+                    </div>
+                ) : (
+                    <div className='flex flex-col w-full max-w-[300px] gap-2'>
+                        <input type='text' placeholder='Name' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserName(e.target.value)} value={userName}></input>
+                        <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserMail(e.target.value)} value={userMail}></input>
+                        <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPassword(e.target.value)} value={userPassword}></input>
+                        <button className={`font-bold py-2 rounded-full ${(userName === '' || userPassword === '' || userMail === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`} onClick={() => singUp()}>Sign Up</button>
+                    </div>
+                )}
+
+                <div className="flex items-center my-4">
+                    <hr className="flex-grow border-gray-300" />
+                    <p className="text-xs text-gray-500 mx-4">Or continue with</p>
+                    <hr className="flex-grow border-gray-300" />
+                </div>
+                <div className='flex flex-row gap-6 min-w-[290px] cursor-pointer rounded-lg p-1 py-2 border-[1px] justify-center items-center shadow-md' onClick={googleLogin}>
+                    <FcGoogle className='text-2xl'/>
+                    <p className='text-gray-600 text-sm'>{login==='Login'?'Login':'Sign Up'} with Google</p>
+                </div>
+                {login === 'Login' ? (
+                    <p className='flex justify-center mt-4 text-xs text-gray-600'>Don't have an account? <span className='underline ml-2 cursor-pointer' onClick={() => setLogin('Register')}>Register</span></p>
+                ) : (
+                    <p className='flex justify-center mt-4 text-xs text-gray-600'>Already have an account? <span className='underline ml-2 cursor-pointer' onClick={() => setLogin('Login')}>Login</span></p>
+                )}
             </div>
-            }
-            <div className="flex items-center my-4">
-                <hr className="flex-grow border-gray-300" />
-                <p className="text-xs text-gray-500 mx-4">Or continue with</p>
-                <hr className="flex-grow border-gray-300" />
-            </div>
-            <div className='flex flex-row gap-2 w-full'>
-                <GoogleLogin 
-                    onSuccess={(credentialResponse) => {
-                        const credentialResponseDecoded = jwtDecode(credentialResponse.credential)
-                        console.log(credentialResponseDecoded);
-                        getUserByGoogle(credentialResponseDecoded.given_name, credentialResponseDecoded.email, credentialResponseDecoded.picture)
-                        setUserName(credentialResponseDecoded.given_name)
-                        setUserMail(credentialResponseDecoded.email)
-                        setPicture(credentialResponseDecoded.picture)
-                    }}
-                    onError={() => {
-                        console.log('Login Failed');
-                    }}
-                />
-                <button className='w-1/2 border-2 p-1'>facebook</button>
-            </div>
-            {login==='Login'?
-                <p className='flex justify-center mt-4 text-xs text-gray-600'>Don't have a account? <span className='underline ml-2 cursor-pointer' onClick={()=> setLogin('Register')}>Register</span></p>:
-                <p className='flex justify-center mt-4 text-xs text-gray-600'>Already have a account? <span className='underline ml-2 cursor-pointer' onClick={()=> setLogin('Login')}>Login</span></p>
-            }
         </div>
     </div>
   )

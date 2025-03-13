@@ -20,7 +20,7 @@ const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userIn
             formData.append('email', userMail)
             formData.append('password', userPassword)
       
-            const {data} = await axios.post('https://server-chat-app-three.vercel.app/user/log-in',formData)
+            const {data} = await axios.post('https://server-chat-app-alpha.vercel.app/api/user/log-in',formData)
             if(data.success){
                 setUserImage(data.message.image)
                 setIsLogin(true)
@@ -44,7 +44,7 @@ const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userIn
           formData.append('password', userPassword)
           // formData.append('image', file)
     
-          const {data} = await axios.post('https://server-chat-app-three.vercel.app/api/user/sign-up',formData)
+          const {data} = await axios.post('https://server-chat-app-alpha.vercel.app/api/user/sign-up',formData)
     
           if(data.success){
             toast.success('Sign up success');

@@ -64,7 +64,7 @@ const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userIn
             formData.append('email', email)
             formData.append('picture', picture)
 
-            const {data} = await axios.post('https://server-chat-app-three.vercel.app/api/user/google-log-in',formData)
+            const {data} = await axios.post('https://server-chat-app-alpha.vercel.app/api/user/google-log-in',formData)
         
             if(data.success){
                 setUserImage(data.message.image)

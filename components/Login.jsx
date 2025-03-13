@@ -113,6 +113,8 @@ const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userIn
         onError: () => {
             console.log('Login Failed');
         },
+        flow: 'implicit', // 或 'code'，根據 Google API 的最新規範
+        redirect_uri: 'https://client-chat-app-ecru.vercel.app/auth/callback', // **手動指定**
     });
 
   return (

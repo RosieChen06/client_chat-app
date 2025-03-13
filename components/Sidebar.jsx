@@ -359,7 +359,23 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
       <div className='mt-4 overflow-auto scrollbar-custom h-[94%]'>
         {roomFlag &&
           (swithTo === 'Messages' ? roomFlag.filter((i) => i.isShow === true) : filteredResult)?.map((item)=>(
-            <div key={item.datetime?item.datetime:item.mail} className={`w-full px-2 cursor-pointer rounded-md bg-white flex flex-row items-center gap-3 mt-3 py-2 ${receiver.mail === (item ? item.sender : null) || receiver.mail === (item ? item.receiver : null) || receiver.mail === (item ? item.mail : null) ?'bg-sky-100':'hover:bg-gray-100'}`} onClick={()=>receiverInfo(item)} >
+            <div key={item.datetime ?? item.mail}
+                className={`w-full px-2 cursor-pointer rounded-md flex flex-row items-center gap-3 mt-3 py-2 ${
+                  ([item?.sender, item?.receiver, item?.mail].includes(receiver?.mail) && 
+                  (!(receiver?.mail.includes('@')) || 
+                  (item?.sender && item?.receiver && item?.sender.includes('@') && item?.receiver.includes('@')) || item?.mail
+                )
+              ) ? '' : 'hover:bg-gray-100'
+              }`}
+              style={{
+                backgroundColor: ([item?.sender, item?.receiver, item?.mail].includes(receiver?.mail) &&
+                (!(receiver?.mail.includes('@')) || 
+                (item?.sender && item?.receiver && item?.sender.includes('@') && item?.receiver.includes('@')) || item?.mail
+              )
+                ) ? '#f1f5f9' : ''
+              }}
+              onClick={() => receiverInfo(item)}                  
+>
               {swithTo==='People' && item && item.mail.includes('@')? <img src={item.image} className="w-12 h-12 object-cover rounded-full" />
               :(item? item.receiver: null) === userInfo.current.mail
                 ? friendInfo.find((i) => i.mail === (item? item.sender: null))?.image
@@ -393,6 +409,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                       </div>
                       )
                   }
+                
 
               <div className='flex flex-col w-full pr-2'>
                 <div className='flex flex-row justify-between items-center'>

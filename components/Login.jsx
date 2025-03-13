@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from "react-icons/fc";
 
-const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
+const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
 
     const [login, setLogin] = useState('Login')
     const [userPassword, setUserPssword] = useState('')
@@ -123,14 +123,14 @@ const Login = ({userName, setUserName, setIsLogin, socket, userMail, setUserMail
                 {login === 'Login' ? (
                     <div className='flex flex-col w-full max-w-[300px] gap-2'>
                         <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserMail(e.target.value)} value={userMail}></input>
-                        <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPassword(e.target.value)} value={userPassword}></input>
+                        <input type='password' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPssword(e.target.value)} value={userPassword}></input>
                         <button className={`font-bold py-2 rounded-full ${(userMail === '' || userPassword === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`} onClick={() => loginToChat()}>Join Chat</button>
                     </div>
                 ) : (
                     <div className='flex flex-col w-full max-w-[300px] gap-2'>
                         <input type='text' placeholder='Name' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserName(e.target.value)} value={userName}></input>
                         <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserMail(e.target.value)} value={userMail}></input>
-                        <input type='text' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPassword(e.target.value)} value={userPassword}></input>
+                        <input type='password' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPssword(e.target.value)} value={userPassword}></input>
                         <button className={`font-bold py-2 rounded-full ${(userName === '' || userPassword === '' || userMail === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`} onClick={() => singUp()}>Sign Up</button>
                     </div>
                 )}

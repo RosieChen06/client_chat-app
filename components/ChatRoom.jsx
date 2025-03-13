@@ -9,9 +9,7 @@ import axios from 'axios';
 const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, userInfo, groupMember, setFriendInfo, setReceiver}) => {
 
     const [isShowLog, setIsShowLog] = useState(false)
-    const wrapperRef = useRef(null); 
     const scroller = useRef(null);
-    // const [isShowMore, setIsShowMore] = useState(false)
 
     useEffect(() => {
         if(!scroller.current) return
@@ -57,15 +55,16 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
     const messagesWithFirstFlag = messages
     .sort((a, b) => a.datetime - b.datetime) 
     .filter((item) => {
-      const receiver = String(item.receiver); 
-      const sender = String(item.sender); 
+      const msg_receiver = String(item.receiver); 
+      const msg_sender = String(item.sender); 
   
       return (
-        (receiver.toLowerCase() === userInfo.current.mail.toLowerCase() && sender.includes('@')) ||
-        (sender.toLowerCase() === userInfo.current.mail.toLowerCase() && receiver.includes('@')) ||
-        userInfo.current.groupList.some((i) =>
-          i.split('%')[0] === receiver || i.split('%')[0] === sender
-        )
+        receiver.mail.includes('@')?
+        (
+        (msg_receiver.toLowerCase() === userInfo.current.mail.toLowerCase() && msg_sender.toLowerCase() === receiver.mail  && msg_sender.includes('@')) ||
+        (msg_sender.toLowerCase() === userInfo.current.mail.toLowerCase() && msg_receiver.toLowerCase() === receiver.mail && msg_receiver.includes('@'))):
+        (receiver.mail === (item.receiver || i.split('%')[0] === item.sender))
+        
       );
     })
     .map(msg => {
@@ -80,7 +79,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
     const quitGroup = async(member) => {
         socket.emit('exit_group', { group_member: member, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });
     }
-
+    
   return receiver && (
     <div className='h-full flex flex-col relative'>
         <div className='bg-slate-50 pb-2 w-full mb-2 flex-grow overflow-auto'>
@@ -168,7 +167,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
                         <h1 className='mt-4 font-bold text-lg'>{receiver.name}</h1>
                         {!receiver.mail?.includes('@') ?<div className='flex flex-row gap-2 items-center'>
                             <p className='text-xs text-gray-500'>{groupMember.length} members</p>
-                            <p className='px-3 bg-slate-100 cursor-pointer rounded-full' onClick={() => setIsShowMore(true)}>&gt;</p>
+                            {/* <p className='px-3 bg-slate-100 cursor-pointer rounded-full' onClick={() => setIsShowMore(true)}>&gt;</p> */}
                         </div>:''}
                         <div className='flex flex-row gap-6 mt-12 items-center'>
                             <div className='flex flex-col gap-3 justify-center items-center'>

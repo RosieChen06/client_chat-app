@@ -1,9 +1,8 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useState } from 'react'
 import { IoIosSend } from "react-icons/io";
-import { MdOutlineFileUpload } from "react-icons/md";
 import { IoMdCloseCircle } from "react-icons/io";
+import { FaImage } from "react-icons/fa6";
 
 const InputField = ({socket, setMessages, receiver, userInfo}) => {
     const [message, setMessage] = useState('')
@@ -44,7 +43,7 @@ const InputField = ({socket, setMessages, receiver, userInfo}) => {
       }
       <div className='w-full px-2 flex flex-row gap-2 justify-center items-center'>
           <label htmlFor="image" className="cursor-pointer bg-slate-600 rounded-2xl px-3 py-2 text-white font-bold flex items-center">
-            <MdOutlineFileUpload />
+            <FaImage />
             <input type='file' id='image'
               onChange={(e) => {setImage(prev => [...prev, e.target.files[0]])}} hidden>
             </input>

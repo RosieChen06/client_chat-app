@@ -282,7 +282,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
         const formData = new FormData()
         formData.append('group_id', group_id)
 
-        const {data} = await axios.post('https://server-chat-app-alpha.vercel.app/api/user/get-member',formData)
+        const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/get-member',formData)
     
         if(data.success){
             setGroupMember(data.message)
@@ -298,7 +298,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
         const formData = new FormData()
         formData.append('group_id', group_id)
 
-        const {data} = await axios.post('https://server-chat-app-alpha.vercel.app/api/user/get-member',formData)
+        const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/get-member',formData)
     
         if(data.success){
             setGroupMember(data.message)

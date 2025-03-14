@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { Toaster } from 'react-hot-toast';
 
-const socket = io("http://localhost:3001");
+const socket = io("https://server-chat-app-alpha.vercel.app");
 
 export default function Home() {
 

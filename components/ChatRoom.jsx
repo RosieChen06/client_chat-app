@@ -4,9 +4,9 @@ import { BsThreeDots } from "react-icons/bs";
 import InputField from './InputField';
 import { MdExitToApp } from "react-icons/md";
 import { IoCloseOutline } from "react-icons/io5";
-import axios from 'axios';
+import { IoIosArrowBack } from "react-icons/io";
 
-const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, userInfo, groupMember, setFriendInfo, setReceiver}) => {
+const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, receiver, userInfo, groupMember, setFriendInfo, setReceiver}) => {
 
     const [isShowLog, setIsShowLog] = useState(false)
     const scroller = useRef(null);
@@ -79,20 +79,23 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
     const quitGroup = async(member) => {
         socket.emit('exit_group', { group_member: member, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });
     }
-    
+
   return receiver && (
     <div className='h-full flex flex-col relative'>
         <div className='bg-slate-50 pb-2 w-full mb-2 flex-grow overflow-auto'>
             <div className='bg-white py-3 flex justify-between items-center sticky top-0 border-b-[1px]'>
-                <div className='px-6 flex flex-row justify-between w-full items-center'>
-                    <div className='flex flex-col'>
-                        <p className='text-xl font-bold'>{receiver.name}</p>
-                        <p className='text-xs text-gray-500'>{receiver.mail&& !receiver.mail.includes('@')? groupMember.length + ' Members':''}</p>
+                <div className='px-2 md:px-6 flex flex-row justify-between w-full items-center'>
+                    <div className='flex flex-row gap-5 items-center'>
+                        <IoIosArrowBack className='flex text-2xl cursor-pointer md:hidden' onClick={()=>setIsOpenMessageRoom(false)}/>
+                        <div className='flex flex-col'>
+                            <p className='text-xl font-bold'>{receiver.name}</p>
+                            <p className='text-xs text-gray-500'>{receiver.mail&& !receiver.mail.includes('@')? groupMember.length + ' Members':''}</p>
+                        </div>
                     </div>
                     <BsThreeDots className="text-[22px] text-gray-600 cursor-pointer" onClick={() => setIsShowLog(true)} />
                 </div>
             </div>
-            <div className='p-6 overflow-y-scroll'>
+            <div className='p-2 md:p-6 overflow-y-scroll'>
                     {messagesWithFirstFlag.filter((item) => (item.receiver === user.toLowerCase() && item.sender.toLowerCase() === receiver.mail) || (String(item.receiver) === String(receiver.mail) && String(item.sender.toLowerCase()) === String(user.toLowerCase())) || (String(item.receiver) === String(receiver.mail) || String(item.sender) === String(receiver.mail))).map((msg) => (
                 <div key={msg.datetime} className="flex flex-col">
 
@@ -146,7 +149,7 @@ const ChatRoom = ({messages, setMessages, socket, user, friendInfo, receiver, us
             </div>
             {/* 側邊欄 */}
             <div 
-                className={`fixed right-0 top-0 rounded-l-3xl bg-white flex flex-col p-4 w-[55%] h-[100vh] min-w-[250px] gap-2 
+                className={`fixed right-0 top-0 rounded-l-3xl bg-white flex flex-col p-4 w-[80%] md:w-[55%] h-[100vh] min-w-[250px] gap-2 
                     transform transition-transform duration-[700ms] ease-in-out shadow-lg
                     ${isShowLog ? "translate-x-0" : "translate-x-full"}`}>
                 <div className="w-full h-full flex flex-col justify-center items-center relative">

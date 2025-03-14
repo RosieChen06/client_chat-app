@@ -16,7 +16,7 @@ import { IoSearchOutline } from "react-icons/io5";
 import { RxExit } from "react-icons/rx";
 import { GoPersonAdd } from "react-icons/go";
 
-const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiver, friendInfo, setFriendInfo, setSwitchTo, swithTo, messages, groupMember, setGroupMember, isProfileEdit, setIsProfileEdit, setUserImage, setMessages}) => {
+const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiver, friendInfo, setFriendInfo, setSwitchTo, swithTo, messages, groupMember, setGroupMember, isProfileEdit, setIsProfileEdit, setUserImage, setMessages, setIsOpenMessageRoom}) => {
   const [addGroup, setAddGroup] = useState(false)
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [addFriend, setAddFriend] = useState(false)
@@ -26,6 +26,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
   const [searchTerm, setSearhTerm] = useState('')
   const [isInvite, setIsInvite] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
+  const [isSlideIn, setIsSlideIn] = useState(false)
 
   // 處理選擇變更
   const handleChange = (selected) => {
@@ -224,6 +225,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
             item.mail !== msg.msgData.account.mail
         ))
       })
+      setIsSlideIn(false);
   });
 
     return () => {
@@ -346,17 +348,26 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
   }
 
   return friendInfo && (
-    <div className='bg-white h-[100vh] p-4 border-r-[1px]'>
+    <div className='bg-white h-[100vh] w-full p-4 border-r-[1px]'>
       <div className='sticky h-[6%]'>
         <div className='flex flex-row w-full justify-between items-center'>
           <p className='font-extrabold text-[25px]'>{swithTo}</p>
+          {swithTo==='Messages'?
           <div className='p-2 bg-slate-100 rounded-full cursor-pointer'>
-            {swithTo==='Messages'?<MdOutlineGroupAdd className='text-lg' onClick={()=>setAddGroup(true)}/>:
-              <IoPersonAddSharp className='text-lg' onClick={()=>setAddFriend(true)}/>}
+            <MdOutlineGroupAdd className='text-lg' onClick={()=>setAddGroup(true)}/>
+          </div>:
+          <div className='flex flex-row gap-3'>
+            <div className='p-2 bg-slate-100 rounded-full cursor-pointer'>
+              <IoPersonAddSharp className='text-lg' onClick={()=>setAddFriend(true)}/>
+            </div>
+            <div className='flex md:hidden p-2 bg-slate-100 rounded-full cursor-pointer'>
+              <IoSearchOutline onClick={()=>{setIsSlideIn(true); setReceiver({name:'',image:'',mail:''});}}/>
+            </div>
           </div>
+          }
         </div>
       </div>
-      <div className='mt-4 overflow-auto scrollbar-custom h-[94%]'>
+      <div className='mt-4 bg-white overflow-scroll h-[81%] md:h-[94%]'>
         {roomFlag &&
           (swithTo === 'Messages' ? roomFlag.filter((i) => i.isShow === true) : filteredResult)?.map((item)=>(
             <div key={item.datetime ?? item.mail}
@@ -374,8 +385,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
               )
                 ) ? '#f1f5f9' : ''
               }}
-              onClick={() => receiverInfo(item)}                  
->
+              onClick={() => {receiverInfo(item); setIsOpenMessageRoom(swithTo==='Messages'? true:!isSlideIn &&　window.innerWidth < 768  ?setIsSlideIn(true):'')}}>
               {swithTo==='People' && item && item.mail.includes('@')? <img src={item.image} className="w-12 h-12 object-cover rounded-full" />
               :(item? item.receiver: null) === userInfo.current.mail
                 ? friendInfo.find((i) => i.mail === (item? item.sender: null))?.image
@@ -431,11 +441,14 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
         }
       </div>
       <div className={`fixed inset-0 bg-gray-300 bg-opacity-50 transition-opacity duration-300
-        ${addGroup || addFriend || isProfileEdit || isRemoveCheck || isInvite || isEdit ? "opacity-100 visible z-40" : "opacity-0 invisible z-10"}`} >
+        ${addGroup || addFriend || isProfileEdit || isRemoveCheck || isInvite || isEdit || isSlideIn ? "opacity-100 visible z-40" : "opacity-0 invisible z-10"}`} onClick={()=>setIsSlideIn(false)}>
       </div>
-      <div className={`fixed right-0 top-0 rounded-l-3xl bg-white flex flex-col p-4 w-[70%] h-[100vh] min-w-[250px] gap-2 
-            transform transition-transform duration-[700ms] ease-in-out shadow-lg z-30
-            ${swithTo==='People'&&receiver!==null ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`fixed right-0 top-0 rounded-l-3xl md:rounded-none bg-white flex flex-col p-4 w-[85%] md:w-[70%] h-[100vh] min-w-[250px] gap-2 
+            shadow-lg z-30
+            transform transition-transform duration-[700ms] ease-in-out
+            ${isSlideIn?'z-50':window.innerWidth >= 768  
+                ? (swithTo === 'People' && receiver !== null ? "translate-x-0" : "translate-x-full")
+                : (isSlideIn ? "translate-x-0" : "translate-x-full")}`}>
         <div className="w-full h-full flex flex-col justify-center items-center relative">
             {receiver.mail.length>0?<div className='flex flex-col gap-2 justify-center items-center'>
               {!receiver.mail?.includes('@') || false ? <div className={`flex ${groupMember.length>2?'flex-col': 'flex-row'} gap-2 justify-center items-center`}>
@@ -457,7 +470,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                     </div>:''}
               <div className='flex flex-row gap-6 mt-12 items-center'>
               <div className='flex flex-col gap-3 justify-center items-center'>
-                  <div className='p-4 bg-slate-100 rounded-full cursor-pointer' onClick={()=>chatWithFriend()}>
+                  <div className='p-4 bg-slate-100 rounded-full cursor-pointer' onClick={()=>{chatWithFriend(); setIsOpenMessageRoom(true); setIsSlideIn(false);}}>
                           <IoChatboxEllipsesOutline className='w-5 h-5'/>
                       </div>
                       <p className='text-gray-600'>Chat</p>
@@ -503,7 +516,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
         </div>
         {/* show more */}
         <div 
-            className={`fixed right-0 top-0 bg-white flex flex-col p-4 w-full h-[100vh] min-w-[250px] gap-2 
+            className={`fixed right-0 top-0 bg-white rounded-l-3xl md:rounded-none flex flex-col p-4 w-full h-[100vh] gap-2 
                 transform transition-transform duration-[700ms] ease-in-out shadow-lg
                 ${isShowMore ? "translate-x-0" : "translate-x-full"}`}>
             <div className="w-full h-full flex flex-col justify-center items-center relative">
@@ -516,23 +529,23 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                 <div className='flex flex-col gap-2 pr-4 justify-start w-full h-full mt-4 items-start overflow-scroll'>
                     {groupMember && groupMember.map((item)=>(
                       <div key={item.image} className='flex flex-row justify-between items-center w-full hover:bg-slate-100 p-2 rounded-md'>
-                        <div className='flex flex-row gap-6 justify-center items-center'>
-                          <img src={item.image} className='w-16 h-16 object-cover rounded-full'></img>
-                          <p>{item.name}</p>
+                        <div className='flex flex-row gap-3 md:gap-6 justify-center items-center'>
+                          <img src={item.image} className='w-12 h-12 md:w-16 md:h-16 object-cover rounded-full'></img>
+                          <p className='text-sm md:text-normal'>{item.name}</p>
                         </div>
-                        {item.mail!==userInfo.current.mail?<div className='flex flex-row gap-4'>
-                            <div className='flex flex-row gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-red-600 bg-slate-50 items-center' onClick={()=>setIsRemoveCheck([item.mail, item.name])}>
-                              <MdPersonRemoveAlt1 className='text-[22px]'/>
+                        {item.mail!==userInfo.current.mail?<div className='flex flex-col text-sm md:text-normal md:flex-row gap-4'>
+                            <div className='flex flex-row text-xs md:text-normal gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-red-600 bg-slate-50 items-center' onClick={()=>setIsRemoveCheck([item.mail, item.name])}>
+                              <MdPersonRemoveAlt1 className='text-[17px] md:text-[22px]'/>
                               <hr className='h-full'/>
                               <p>Remove</p>
                             </div>
                             {!userInfo.current.friendList.includes(item.mail)?
-                            <div className='flex flex-row gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-green-600 bg-slate-50 items-center' onClick={()=>{setGroupName(item.mail); addAFriend('add')}}>
-                              <IoPersonAddSharp className='text-[17px]'/>
+                            <div className='flex flex-row text-xs md:text-normal gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-green-600 bg-slate-50 items-center' onClick={()=>{setGroupName(item.mail); addAFriend('add')}}>
+                              <IoPersonAddSharp className='text-[12px] md:text-[17px]'/>
                               <hr className='h-full'/>
                               <p>Add Friend</p>
                             </div>:
-                            <div className='flex flex-row gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-green-600 bg-slate-50 items-center' 
+                            <div className='flex flex-row text-xs md:text-normal gap-2 px-2 py-1 cursor-pointer hover:font-bold hover:text-green-600 bg-slate-50 items-center' 
                               onClick={()=>{
                                 setReceiver({
                                   name: item.name,
@@ -542,7 +555,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                                 setSwitchTo('Messages')
                                 setIsShowMore(false)
                               }}>
-                              <IoChatboxEllipsesOutline className='text-[17px]'/>
+                              <IoChatboxEllipsesOutline className='text-[12px] md:text-[17px]'/>
                               <hr className='h-full'/>
                               <p>Chat</p>
                             </div>

@@ -225,7 +225,6 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
             item.mail !== msg.msgData.account.mail
         ))
       })
-      setIsSlideIn(false);
   });
 
     return () => {

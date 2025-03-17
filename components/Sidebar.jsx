@@ -554,6 +554,8 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                                 })
                                 setSwitchTo('Messages')
                                 setIsShowMore(false)
+                                setIsSlideIn(false)
+                                setIsOpenMessageRoom(true)
                               }}>
                               <IoChatboxEllipsesOutline className='text-[12px] md:text-[17px]'/>
                               <hr className='h-full'/>

@@ -4,8 +4,8 @@ import { AiFillMessage } from "react-icons/ai";
 import { BsFillPeopleFill } from "react-icons/bs";
 import { RiLogoutCircleLine } from "react-icons/ri";
 
-const Option = ({setGroupName, userInfo, setSwitchTo, swithTo, setReceiver, setIsProfileEdit, userImage, setIsLogin}) => {
-
+const Option = React.memo(({setGroupName, userInfo, setSwitchTo, swithTo, setReceiver, setIsProfileEdit, userImage, setIsLogin}) => {
+  
   return (
     <div className="flex bg-white flex-row md:flex-col justify-center md:justify-start items-center h-full">
         {/* 按鈕區塊 */}
@@ -28,6 +28,6 @@ const Option = ({setGroupName, userInfo, setSwitchTo, swithTo, setReceiver, setI
     </div>
 
   )
-}
+})
 
 export default Option

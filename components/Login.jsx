@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from "react-icons/fc";
 
-const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
+const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
 
     const [login, setLogin] = useState('Login')
     const [userPassword, setUserPssword] = useState('')
@@ -155,6 +155,6 @@ const Login = ({userName, setUserName, setIsLogin, userMail, setUserMail, userIn
         </div>
     </div>
   )
-}
+})
 
 export default Login

@@ -384,7 +384,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
               )
                 ) ? '#f1f5f9' : ''
               }}
-              onClick={() => {receiverInfo(item); setIsOpenMessageRoom(swithTo==='Messages'? true:!isSlideIn &&　window.innerWidth < 768  ?setIsSlideIn(true):'')}}>
+              onClick={() => {receiverInfo(item); setIsShowMore(false); setIsOpenMessageRoom(swithTo==='Messages'? true:!isSlideIn &&　window.innerWidth < 768  ?setIsSlideIn(true):'')}}>
               {swithTo==='People' && item && item.mail.includes('@')? <img src={item.image} className="w-12 h-12 object-cover rounded-full" />
               :(item? item.receiver: null) === userInfo.current.mail
                 ? friendInfo.find((i) => i.mail === (item? item.sender: null))?.image

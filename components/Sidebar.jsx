@@ -418,8 +418,6 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                       </div>
                       )
                   }
-                
-
               <div className='flex flex-col w-full pr-2'>
                 <div className='flex flex-row justify-between items-center'>
                 <p className='font-bold'>
@@ -433,7 +431,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                 </p>
                   {swithTo==='People'?'':<p className='text-xs text-gray-600'>{new Date(item.datetime).toLocaleDateString()}</p>}
                 </div>
-                {swithTo==='People'?'':<p className='text-xs mt-2'>{item.msg}</p>}
+                {swithTo==='People'?'':<p className='text-xs mt-2'>{item.msg.slice(0,50)}{item.msg.length>50?'...':''}</p>}
               </div>
             </div>
           ))

@@ -9,6 +9,7 @@ import { io } from "socket.io-client";
 import { Toaster } from 'react-hot-toast';
 
 const socket = io("https://server-chat-app-iu9t.onrender.com");
+// const socket = io("http://localhost:3001");
 
 export default function Home() {
 

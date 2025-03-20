@@ -42,7 +42,6 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
           formData.append('name', userName)
           formData.append('email', userMail)
           formData.append('password', userPassword)
-          // formData.append('image', file)
     
           const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/sign-up',formData)
     

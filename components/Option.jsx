@@ -1,4 +1,3 @@
-'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { AiFillMessage } from "react-icons/ai";
 import { BsFillPeopleFill } from "react-icons/bs";

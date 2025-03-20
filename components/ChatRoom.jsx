@@ -19,7 +19,15 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
 
     useEffect(()=>{
         socket.on('receive_msg', (msg)=>{
-            setMessages((prev)=>[...prev, msg.msgData])
+            if(msg.msgData.sender===userInfo.current.sender){
+                setMessages((prev) =>
+                    prev.map((m) =>
+                      m.datetime === msg.msgData.datetime ? { ...m, image: msg.msgData.image, status: "sent" } : msg
+                    )
+                  );
+            }else{
+                setMessages((prev)=>[...prev, msg.msgData])
+            }
         })
 
         socket.on('exit_done', (msg) => {

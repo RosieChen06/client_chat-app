@@ -9,12 +9,18 @@ const InputField = ({socket, setMessages, receiver, userInfo}) => {
     const [image, setImage] = useState([])
 
     const sendMessage = async() => {
+
+        if (message.trim() || image.length===0) return;
         const msgData = {
-            message: message,
-            datetime: Date.now(),
-            emoji: [],
-            isRead: false,
-          }
+          message: message,
+          datetime: Date.now(),
+          emoji: [],
+          isRead: false,
+        }
+        const tempURL = URL.createObjectURL(image);
+
+        const newMessage = { sender: userInfo.current.mail, msg: msgData, datetime: msgData.datetime, receiver: receiver.mail, image: tempURL, status: "pending" };
+        setMessages((prev) => [...prev, newMessage]);
 
         socket.emit('send_msg', { sender: userInfo.current.mail, receiver: receiver.mail, message: msgData, msgData, files: image });
         setMessage('')

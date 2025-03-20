@@ -4,22 +4,25 @@ import { IoIosSend } from "react-icons/io";
 import { IoMdCloseCircle } from "react-icons/io";
 import { FaImage } from "react-icons/fa6";
 
-const InputField = ({socket, setMessages, receiver, userInfo}) => {
+const InputField = ({socket, setMessages, messages, receiver, userInfo}) => {
     const [message, setMessage] = useState('')
     const [image, setImage] = useState([])
 
+    console.log(messages)
+
     const sendMessage = async() => {
 
-        if (message.trim() || image.length===0) return;
+        // if (message.trim() || image.length===0) return;
         const msgData = {
           message: message,
           datetime: Date.now(),
           emoji: [],
           isRead: false,
         }
-        const tempURL = URL.createObjectURL(image);
 
-        const newMessage = { sender: userInfo.current.mail, msg: msgData, datetime: msgData.datetime, receiver: receiver.mail, image: tempURL, status: "pending" };
+        const tempURL = image.map((img) => URL.createObjectURL(img));
+
+        const newMessage = { sender: userInfo.current.mail, msg: message, datetime: msgData.datetime, receiver: receiver.mail, image: tempURL, status: "pending" };
         setMessages((prev) => [...prev, newMessage]);
 
         socket.emit('send_msg', { sender: userInfo.current.mail, receiver: receiver.mail, message: msgData, msgData, files: image });

@@ -11,6 +11,8 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
     const [isShowLog, setIsShowLog] = useState(false)
     const scroller = useRef(null);
 
+    console.log(messages)
+
     useEffect(() => {
         if(!scroller.current) return
 
@@ -19,13 +21,16 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
 
     useEffect(()=>{
         socket.on('receive_msg', (msg)=>{
-            if(msg.msgData.sender===userInfo.current.sender){
+            if(msg.msgData.sender===userInfo.current.mail){
+                console.log(msg.msgData.sender, userInfo.current.mail)
                 setMessages((prev) =>
                     prev.map((m) =>
-                      m.datetime === msg.msgData.datetime ? { ...m, image: msg.msgData.image, status: "sent" } : msg
+                      m.datetime === msg.msgData.datetime ? { ...m, image: msg.msgData.image, status: "sent" } : m
                     )
                   );
             }else{
+                console.log(msg.msgData.sender, userInfo.current.mail)
+                console.log('here')
                 setMessages((prev)=>[...prev, msg.msgData])
             }
         })
@@ -71,7 +76,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
         (
         (msg_receiver.toLowerCase() === userInfo.current.mail.toLowerCase() && msg_sender.toLowerCase() === receiver.mail  && msg_sender.includes('@')) ||
         (msg_sender.toLowerCase() === userInfo.current.mail.toLowerCase() && msg_receiver.toLowerCase() === receiver.mail && msg_receiver.includes('@'))):
-        (receiver.mail === (item.receiver || i.split('%')[0] === item.sender))
+        (receiver.mail === (item.receiver || item.sender))
         
       );
     })
@@ -149,6 +154,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
             setMessages={setMessages}
             receiver={receiver}
             userInfo={userInfo}
+            messages={messages}
         />
         <div>
             <div className={`fixed inset-0 bg-gray-300 bg-opacity-50 transition-opacity duration-300 

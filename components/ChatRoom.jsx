@@ -11,8 +11,6 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
     const [isShowLog, setIsShowLog] = useState(false)
     const scroller = useRef(null);
 
-    console.log(messages)
-
     useEffect(() => {
         if(!scroller.current) return
 
@@ -22,15 +20,12 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
     useEffect(()=>{
         socket.on('receive_msg', (msg)=>{
             if(msg.msgData.sender===userInfo.current.mail){
-                console.log(msg.msgData.sender, userInfo.current.mail)
                 setMessages((prev) =>
                     prev.map((m) =>
                       m.datetime === msg.msgData.datetime ? { ...m, image: msg.msgData.image, status: "sent" } : m
                     )
                   );
             }else{
-                console.log(msg.msgData.sender, userInfo.current.mail)
-                console.log('here')
                 setMessages((prev)=>[...prev, msg.msgData])
             }
         })
@@ -118,7 +113,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
                     </div>
                     )}
                     <div className='flex flex-row gap-2'>
-                        {msg.sender===receiver.mail?<img src={receiver.image} className='w-12 h-12 object-cover rounded-full' />:(!msg.receiver.includes('@')&&msg.sender!==userInfo.current.mail)?<img src={groupMember.find((i)=>i.mail===msg.sender)?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} className='w-12 h-12 object-cover rounded-full'></img>:''}
+                        {msg.sender===receiver.mail?<img src={receiver.image} loading="lazy" className='w-12 h-12 object-cover rounded-full' />:(!msg.receiver.includes('@')&&msg.sender!==userInfo.current.mail)?<img src={groupMember.find((i)=>i.mail===msg.sender)?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} loading="lazy" className='w-12 h-12 object-cover rounded-full'></img>:''}
                         <div className={`flex flex-col w-full gap-1 mb-4 ${msg.sender.toLowerCase() === user.toLowerCase() ? 'items-end' : 'items-start'}`}>
                             <p className="text-xs text-gray-500">{msg.sender.toLowerCase()===user?userInfo.current.name:receiver.mail.includes('@')?receiver.name:groupMember.find((item)=>item.mail===msg.sender)?.name || 'Unknown'}</p>
                             <div className="flex flex-row gap-1 items-end">
@@ -130,7 +125,7 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
                                 <div className={`flex flex-col gap-2 ${msg.sender.toLowerCase()===user.toLowerCase()?'items-end':'items-start'}`}>
                                     {msg.image && msg.image.length > 0 ? (
                                         msg.image.map((item, index) => (
-                                            <img className='rounded-md w-40 h-40 object-cover' key={index} src={item} alt={`image-${index}`} />
+                                            <img className='rounded-md w-40 h-40 object-cover' key={index} loading="lazy" src={item} alt={`image-${index}`} />
                                         ))
                                         ) : null
                                     }
@@ -172,15 +167,15 @@ const ChatRoom = ({messages, setMessages, socket, user, setIsOpenMessageRoom, re
                 </div>:''}
                 {!receiver.mail?.includes('@') ? <div className={`flex ${groupMember.length>2?'flex-col': 'flex-row'} gap-2 justify-center items-center`}>
                     {groupMember.slice(0,1).map((i)=>(
-                        <img key={i.image} src={i.image} className='rounded-full w-12 h-12 object-cover'></img>
+                        <img key={i.image} src={i.image} loading="lazy" className='rounded-full w-12 h-12 object-cover'></img>
                     ))}
                     <div className='flex flex-row gap-2'>
                     {groupMember.slice(1,3).map((i)=>(
-                        <img key={i.image} src={i.image} className='rounded-full w-12 h-12 object-cover'></img>
+                        <img key={i.image} src={i.image} loading="lazy" className='rounded-full w-12 h-12 object-cover'></img>
                     ))}
                     </div>
                 </div>:''}
-                {receiver.mail?.includes('@') ? <img src={receiver.image} className='rounded-full w-24 h-24 object-cover'></img>:''}
+                {receiver.mail?.includes('@') ? <img src={receiver.image} loading="lazy" className='rounded-full w-24 h-24 object-cover'></img>:''}
                         <h1 className='mt-4 font-bold text-lg'>{receiver.name}</h1>
                         {!receiver.mail?.includes('@') ?<div className='flex flex-row gap-2 items-center'>
                             <p className='text-xs text-gray-500'>{groupMember.length} members</p>

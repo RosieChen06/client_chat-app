@@ -450,15 +450,15 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
             {receiver.mail.length>0?<div className='flex flex-col gap-2 justify-center items-center'>
               {!receiver.mail?.includes('@') || false ? <div className={`flex ${groupMember.length>2?'flex-col': 'flex-row'} gap-2 justify-center items-center`}>
                 {groupMember.slice(0,1).map((i)=>(
-                    <img key={i.image} src={i.image} className='rounded-full w-16 h-16 object-cover'></img>
+                    <img key={i.image} src={i.image} loading="lazy" className='rounded-full w-16 h-16 object-cover'></img>
                 ))}
                 <div className='flex flex-row gap-2'>
                   {groupMember.slice(1,3).map((i)=>(
-                      <img key={i.image} src={i.image} className='rounded-full w-16 h-16 object-cover'></img>
+                      <img key={i.image} src={i.image} loading="lazy" className='rounded-full w-16 h-16 object-cover'></img>
                   ))}
                 </div>
               </div>:''}
-              {receiver.mail?.includes('@') ? <img src={receiver.image} className='rounded-full w-24 h-24 object-cover'></img>:''}
+              {receiver.mail?.includes('@') ? <img src={receiver.image} loading="lazy" className='rounded-full w-24 h-24 object-cover'></img>:''}
               
               <h1 className="mt-4 font-bold text-lg flex items-center gap-2">{ receiver.name }<span className='cursor-pointer' onClick={()=>{setIsEdit(true); setGroupName(receiver.name)}}>{receiver.mail?.includes('@') ? '':<MdEdit />}</span></h1>
               {!receiver.mail?.includes('@') ?<div className='flex flex-row gap-2 items-center'>
@@ -527,7 +527,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
                     {groupMember && groupMember.map((item)=>(
                       <div key={item.image} className='flex flex-row justify-between items-center w-full hover:bg-slate-100 p-2 rounded-md'>
                         <div className='flex flex-row gap-3 md:gap-6 justify-center items-center'>
-                          <img src={item.image} className='w-12 h-12 md:w-16 md:h-16 object-cover rounded-full'></img>
+                          <img src={item.image} loading="lazy" className='w-12 h-12 md:w-16 md:h-16 object-cover rounded-full'></img>
                           <p className='text-sm md:text-normal'>{item.name}</p>
                         </div>
                         {item.mail!==userInfo.current.mail?<div className='flex flex-col text-sm md:text-normal md:flex-row gap-4'>
@@ -600,7 +600,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
               <div>
                 <p>Photo</p>
                 <div className='relative w-fit'>
-                  <img src={image?URL.createObjectURL(image):userInfo.current.image} className='mt-4 rounded-full w-16 h-16 object-cover'></img>
+                  <img src={image?URL.createObjectURL(image):userInfo.current.image} loading="lazy" className='mt-4 rounded-full w-16 h-16 object-cover'></img>
                   <label htmlFor="image" className='bg-slate-50 p-1 rounded-full w-fit absolute top-[-3px] right-[-5px] cursor-pointer'>
                     <MdEdit/>
                     <input type='file' id='image'

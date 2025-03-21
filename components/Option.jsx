@@ -22,7 +22,7 @@ const Option = React.memo(({setGroupName, userInfo, setSwitchTo, swithTo, setRec
 
         {/* 用戶圖片 */}
         <div className="ml-16 md:ml-0 md:mt-4 flex justify-center items-center md:absolute md:bottom-4 cursor-pointer" onClick={()=>{setIsProfileEdit(true); setGroupName(userInfo.current.name)}}>
-            <img src={userImage} className="w-9 h-9 md:w-12 md:h-12 object-cover rounded-full" />
+            <img src={userImage} loading="lazy" className="w-9 h-9 md:w-12 md:h-12 object-cover rounded-full" />
         </div>
     </div>
 

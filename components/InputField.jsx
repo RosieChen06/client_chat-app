@@ -41,7 +41,7 @@ const InputField = ({socket, setMessages, messages, receiver, userInfo}) => {
         <div className='w-full px-2 flex flex-row gap-2 justify-start items-center mb-4'>
           {image.map((img, index) => (
             <div key={index} className="relative">
-              <img src={URL.createObjectURL(img)} className="w-28" />
+              <img src={URL.createObjectURL(img)} loading="lazy" className="w-28" />
               <IoMdCloseCircle 
                 className="absolute top-[-8px] right-[-8px] text-xl cursor-pointer" 
                 onClick={() => handleRemoveImage(index)}

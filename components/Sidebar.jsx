@@ -443,7 +443,7 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
       <div className={`fixed right-0 top-0 rounded-l-3xl md:rounded-none bg-white flex flex-col p-4 w-[85%] md:w-[70%] h-[100vh] min-w-[250px] gap-2 
             shadow-lg z-30
             transform transition-transform duration-[700ms] ease-in-out
-            ${isSlideIn?'z-50':window.innerWidth >= 768  
+            ${isInvite || isRemoveCheck?'z-20':isSlideIn?'z-50':window.innerWidth >= 768  
                 ? (swithTo === 'People' && receiver !== null ? "translate-x-0" : "translate-x-full")
                 : (isSlideIn ? "translate-x-0" : "translate-x-full")}`}>
         <div className="w-full h-full flex flex-col justify-center items-center relative">

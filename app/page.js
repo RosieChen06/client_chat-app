@@ -4,6 +4,7 @@ import ChatRoom from "@/components/ChatRoom";
 import Login from "@/components/Login";
 import Sidebar from "@/components/Sidebar";
 import Option from "@/components/Option";
+import React from 'react';
 import { useRef, useState, Suspense } from "react";
 import { io } from "socket.io-client";
 import { Toaster } from 'react-hot-toast';
@@ -13,7 +14,6 @@ const socket = io("https://server-chat-app-iu9t.onrender.com");
 // const socket = io("http://localhost:3001");
 
 const LazyChatRoom = React.lazy(() => import('@/components/ChatRoom'));
-// const LazySidebar = React.lazy(() => import('@/components/Sidebar'));
 const LazyOption = React.lazy(() => import('@/components/Option'));
 
 export default function Home() {
@@ -35,12 +35,11 @@ export default function Home() {
   const [userImage, setUserImage] = useState(null);
   const [groupName, setGroupName] = useState('')
 
-  //rwd state
   const [isOpenMessageRoom, setIsOpenMessageRoom] = useState(false)
 
   return (
     <div className="h-[100vh]">
-      <Script strategy="afterInteractive" // 在頁面渲染完成後加載
+      <Script strategy="afterInteractive"
               src="https://example.com/external-script.js"
       />
 

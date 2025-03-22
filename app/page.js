@@ -13,7 +13,7 @@ const socket = io("https://server-chat-app-iu9t.onrender.com");
 // const socket = io("http://localhost:3001");
 
 const LazyChatRoom = React.lazy(() => import('@/components/ChatRoom'));
-const LazySidebar = React.lazy(() => import('@/components/Sidebar'));
+// const LazySidebar = React.lazy(() => import('@/components/Sidebar'));
 const LazyOption = React.lazy(() => import('@/components/Option'));
 
 export default function Home() {
@@ -76,7 +76,7 @@ export default function Home() {
 
               {/* Sidebar 高度等於 Option 剩餘的高度 */}
               <div className="w-full h-full md:h-auto md:w-5/6 pb-4 flex-1 justify-center items-center flex-col" style={{height: 'calc(100vh - 60px)'}}>
-                <LazySidebar 
+                <Sidebar 
                   groupName={groupName}
                   setGroupName={setGroupName}
                   userName={userName} 

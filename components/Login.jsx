@@ -1,20 +1,21 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from "react-icons/fc";
+import { ThreeDot } from "react-loading-indicators";
 
 const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage}) => {
 
     const [login, setLogin] = useState('Login')
     const [userPassword, setUserPssword] = useState('')
     const [picture, setPicture] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     const loginToChat = async() => {
+        setIsLoading(true)
         if(userMail!=='' && userPassword !==''){
             const formData = new FormData()
             formData.append('email', userMail)
@@ -22,6 +23,7 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
       
             const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/log-in',formData)
             if(data.success){
+                setIsLoading(false)
                 setUserImage(data.message.image)
                 setIsLogin(true)
                 toast.success('Log in');
@@ -29,6 +31,7 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
                 setFriendInfo(data.friendInfo)
                 getHistoryDialogue(data)
             }else{
+                setIsLoading(false)
                 toast.error(data.message);
             }
         }else{
@@ -37,6 +40,7 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
     }
 
     const singUp = async() => {
+        setIsLoading(true)
         try{
           const formData = new FormData()
           formData.append('name', userName)
@@ -46,17 +50,21 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
           const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/sign-up',formData)
     
           if(data.success){
+            setIsLoading(false)
             toast.success('Sign up success');
             console.log(data)
           }else{
+            setIsLoading(false)
             toast.error('User already exist');
           }
         }catch(err){
+          setIsLoading(false)
           console.log(err)
         }
       }
     
     const getUserByGoogle = async(name, email, picture) => {
+        setIsLoading(true)
         try{
             const formData = new FormData()
             formData.append('name', name)
@@ -66,6 +74,7 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
             const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/google-log-in',formData)
         
             if(data.success){
+                setIsLoading(false)
                 setUserImage(data.message.image)
                 setIsLogin(true)
                 toast.success('Log in');
@@ -74,6 +83,7 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
                 getHistoryDialogue(data)
             }
         }catch(err){
+            setIsLoading(false)
             console.log(err)
         }
     }
@@ -112,8 +122,8 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
         onError: () => {
             console.log('Login Failed');
         },
-        flow: 'implicit', // 或 'code'，根據 Google API 的最新規範
-        redirect_uri: 'https://client-chat-app-ecru.vercel.app/auth/callback', // **手動指定**
+        flow: 'implicit', 
+        redirect_uri: 'https://client-chat-app-ecru.vercel.app/auth/callback',
     });
 
   return (
@@ -125,7 +135,7 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
                     <div className='flex flex-col w-full max-w-[300px] gap-2'>
                         <input type='text' placeholder='Email' className='border-2 p-2 rounded-full w-full focus:outline-none pl-4' onChange={(e) => setUserMail(e.target.value)} value={userMail}></input>
                         <input type='password' placeholder='Password' className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4' onChange={(e) => setUserPssword(e.target.value)} value={userPassword}></input>
-                        <button className={`font-bold py-2 rounded-full ${(userMail === '' || userPassword === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`} onClick={() => loginToChat()}>Join Chat</button>
+                        <button disabled={isLoading} className={`font-bold py-2 rounded-full ${(userMail === '' || userPassword === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`} onClick={() => loginToChat()}>{isLoading?<ThreeDot color="#fdfdfd" size='small' text="" textColor="#ffffff" />:"Join Chat"}</button>
                     </div>
                 ) : (
                     <div className='flex flex-col w-full max-w-[300px] gap-2'>

@@ -64,7 +64,6 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
       }
     
     const getUserByGoogle = async(name, email, picture) => {
-        setIsLoading(true)
         try{
             const formData = new FormData()
             formData.append('name', name)
@@ -74,7 +73,6 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
             const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/google-log-in',formData)
         
             if(data.success){
-                setIsLoading(false)
                 setUserImage(data.message.image)
                 setIsLogin(true)
                 toast.success('Log in');
@@ -83,7 +81,6 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
                 getHistoryDialogue(data)
             }
         }catch(err){
-            setIsLoading(false)
             console.log(err)
         }
     }
@@ -107,22 +104,22 @@ const Login = React.memo(({userName, setUserName, setIsLogin, userMail, setUserM
     }
 
     const googleLogin = useGoogleLogin({
-        onSuccess: (tokenResponse) => {
-            fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokenResponse.access_token}`)
-                .then(res => res.json())
-                .then(userInfo => {
-                    console.log(userInfo);
-                    getUserByGoogle(userInfo.given_name, userInfo.email, userInfo.picture);
-                    setUserName(userInfo.given_name);
-                    setUserMail(userInfo.email);
-                    setPicture(userInfo.picture);
-                })
-                .catch(err => console.error("Google Login Error: ", err));
+        onSuccess: async (tokenResponse) => {
+            try {
+                const res = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokenResponse.access_token}`);
+                const userInfo = await res.json();
+                getUserByGoogle(userInfo.given_name, userInfo.email, userInfo.picture);
+                setUserName(userInfo.given_name);
+                setUserMail(userInfo.email);
+                setPicture(userInfo.picture);
+            } catch (err) {
+                console.error("Google Login Error: ", err);
+            }
         },
         onError: () => {
             console.log('Login Failed');
         },
-        flow: 'implicit', 
+        flow: 'implicit',
         redirect_uri: 'https://client-chat-app-ecru.vercel.app/auth/callback',
     });
 

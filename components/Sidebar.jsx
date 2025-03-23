@@ -343,6 +343,10 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
   }
 
   const changeProfile = async() => {
+    if(image===null) {
+      setIsProfileEdit(false)
+      return
+    }
     socket.emit('edit_profile', { user_mail: userInfo.current.mail, user_name: groupName, file: image });
   }
 

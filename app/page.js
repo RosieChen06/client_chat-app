@@ -1,9 +1,7 @@
 'use client'
 
-import ChatRoom from "@/components/ChatRoom";
 import Login from "@/components/Login";
 import Sidebar from "@/components/Sidebar";
-import Option from "@/components/Option";
 import React from 'react';
 import { useRef, useState, Suspense } from "react";
 import { io } from "socket.io-client";
@@ -19,8 +17,6 @@ const LazyOption = React.lazy(() => import('@/components/Option'));
 export default function Home() {
 
   const [isLogin, setIsLogin] = useState(false)
-  const [userName, setUserName] = useState("")
-  const [userMail, setUserMail] = useState("")
   const [messages, setMessages] = useState([])
   const [receiver, setReceiver] = useState({
     name: '',
@@ -46,12 +42,8 @@ export default function Home() {
       <Toaster />
       {!isLogin?
         <Login 
-            setUserName={setUserName} 
-            userName={userName} 
             socket={socket} 
             setIsLogin={setIsLogin} 
-            userMail={userMail} 
-            setUserMail={setUserMail} 
             userInfo={userInfo} 
             setFriendInfo={setFriendInfo} 
             setMessages={setMessages}
@@ -78,7 +70,6 @@ export default function Home() {
                 <Sidebar 
                   groupName={groupName}
                   setGroupName={setGroupName}
-                  userName={userName} 
                   userInfo={userInfo} 
                   setReceiver={setReceiver} 
                   receiver={receiver} 
@@ -103,7 +94,6 @@ export default function Home() {
                 messages={messages}
                 setMessages={setMessages}
                 socket={socket}
-                user={userMail}
                 receiver={receiver}
                 userInfo={userInfo}
                 friendInfo={friendInfo}

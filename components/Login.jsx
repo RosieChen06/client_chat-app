@@ -5,14 +5,14 @@ import axios from 'axios';
 import { useGoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from "react-icons/fc";
 import { ThreeDot } from "react-loading-indicators";
-import { useForm } from 'react-hook-form';  // 引入 useForm
+import { useForm } from 'react-hook-form';  
 
-const Login = React.memo(({ userName, setUserName, setIsLogin, userMail, setUserMail, userInfo, setFriendInfo, setMessages, setUserImage }) => {
+const Login = React.memo(({ setIsLogin, userInfo, setFriendInfo, setMessages, setUserImage }) => {
 
     const [login, setLogin] = useState('Login')
     const [isLoading, setIsLoading] = useState(false)
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, watch } = useForm();
 
     const loginToChat = async (data) => {
         setIsLoading(true)
@@ -52,7 +52,6 @@ const Login = React.memo(({ userName, setUserName, setIsLogin, userMail, setUser
             if (responseData.success) {
                 setIsLoading(false)
                 toast.success('Sign up success');
-                console.log(responseData)
             } else {
                 setIsLoading(false)
                 toast.error('User already exists');
@@ -109,9 +108,6 @@ const Login = React.memo(({ userName, setUserName, setIsLogin, userMail, setUser
                 const res = await fetch(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokenResponse.access_token}`);
                 const userInfo = await res.json();
                 getUserByGoogle(userInfo.given_name, userInfo.email, userInfo.picture);
-                setUserName(userInfo.given_name);
-                setUserMail(userInfo.email);
-                setPicture(userInfo.picture);
             } catch (err) {
                 console.error("Google Login Error: ", err);
             }
@@ -145,7 +141,7 @@ const Login = React.memo(({ userName, setUserName, setIsLogin, userMail, setUser
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`font-bold py-2 rounded-full ${(!userMail || !userPassword) ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`}
+                                className={`font-bold py-2 rounded-full ${(watch("email")!=='' && watch("password")!=='') ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600' }`}
                             >
                                 {isLoading ? <ThreeDot color="#fdfdfd" size='small' /> : "Join Chat"}
                             </button>
@@ -158,19 +154,25 @@ const Login = React.memo(({ userName, setUserName, setIsLogin, userMail, setUser
                                 placeholder='Name'
                                 className='border-2 p-2 rounded-full w-full focus:outline-none pl-4'
                             />
+                            {errors.name && <span className="pl-4 text-red-500 text-xs">{errors.name.message}</span>}
                             <input
-                                {...register('email', { required: 'Email is required' })}
+                                {...register('email', { required: 'Email is required', pattern: {
+                                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                    message: 'Invalid email format'
+                                } })}
                                 type='text'
                                 placeholder='Email'
                                 className='border-2 p-2 rounded-full w-full focus:outline-none pl-4'
                             />
+                            {errors.email && <span className="pl-4 text-red-500 text-xs">{errors.email.message}</span>}
                             <input
                                 {...register('password', { required: 'Password is required' })}
                                 type='password'
                                 placeholder='Password'
-                                className='border-2 p-2 rounded-full w-full focus:outline-none mb-4 pl-4'
+                                className='border-2 p-2 rounded-full w-full focus:outline-none pl-4'
                             />
-                            <button type="submit" className={`font-bold py-2 rounded-full ${(userName === '' || userPassword === '' || userMail === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`}>
+                            {errors.password && <span className="pl-4 text-red-500 text-xs">{errors.password.message}</span>}
+                            <button type="submit" className={`font-bold py-2 rounded-full ${(watch("email") === '' || watch("password") === '' || watch("name") === '') ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`}>
                                 Sign Up
                             </button>
                         </form>

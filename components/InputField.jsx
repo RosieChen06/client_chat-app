@@ -8,8 +8,6 @@ const InputField = ({socket, setMessages, messages, receiver, userInfo}) => {
     const [message, setMessage] = useState('')
     const [image, setImage] = useState([])
 
-    console.log(messages)
-
     const sendMessage = async() => {
 
         // if (message.trim() || image.length===0) return;

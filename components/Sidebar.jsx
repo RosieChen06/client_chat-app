@@ -275,60 +275,97 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
       return { ...msg, isShow };
   });
 
-    const receiverInfo = async(info) => {
-      // sender is group
-      if ((info.sender && !info.sender.includes('@')) || (info.mail && !info.mail.includes('@'))) {
-        const matchedGroup = userInfo.current.groupList.find((i) => i.split('%')[0] === info.sender || i.split('%')[0] === info.mail);
-        const group_id = info.sender? info.sender+'%' + matchedGroup.split('%')[1] + '%' : info.mail+'%' + info.name + '%'
-        const formData = new FormData()
-        formData.append('group_id', group_id)
+  const prevInfoRef = useRef(null);
 
-        const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/get-member',formData)
-    
-        if(data.success){
-            setGroupMember(data.message)
-        }
-        setReceiver({
-          name: matchedGroup.split('%')[1],
-          mail: info.sender || info.mail
-        })
-        // receiver is group
-      }else if(info.receiver && !info.receiver.includes('@')){
-        const matchedGroup = userInfo.current.groupList.find((i) => i.split('%')[0] === info.receiver);
-        const group_id = info.receiver? info.receiver+'%' + matchedGroup.split('%')[1] + '%' : info.mail+'%' + info.name + '%'
-        const formData = new FormData()
-        formData.append('group_id', group_id)
+  const receiverInfo = async (info) => {
+    if (!info || (prevInfoRef.current && JSON.stringify(prevInfoRef.current) === JSON.stringify(info))) {
+      return;
+    }
 
-        const {data} = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/get-member',formData)
-    
-        if(data.success){
-            setGroupMember(data.message)
-        }
-        setReceiver({
-          name: matchedGroup.split('%')[1],
-          mail: info.receiver || info.mail
-        })
+    prevInfoRef.current = info;
+
+    // sender is group
+    if ((info.sender && !info.sender.includes('@')) || (info.mail && !info.mail.includes('@'))) {
+      const matchedGroup = userInfo.current.groupList.find(
+        (i) => i.split('%')[0] === info.sender || i.split('%')[0] === info.mail
+      );
+
+      if (!matchedGroup) return; // Ensure matchedGroup exists
+
+      const group_id = info.sender
+        ? info.sender + '%' + matchedGroup.split('%')[1] + '%'
+        : info.mail + '%' + info.name + '%';
+
+      const formData = new FormData();
+      formData.append('group_id', group_id);
+
+      const { data } = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/get-member', formData);
+
+      if (data.success) {
+        setGroupMember(data.message);
       }
-      else if(info.sender && info.sender.toLowerCase()===userInfo.current.mail.toLowerCase() || info.mail && info.mail.includes('@')){
-        const select = friendInfo.find((item)=>(
-          item.mail === info.receiver || item.mail ===info.mail
-        )) || info.receiver
-        setReceiver({
-          name: select.name,
-          image: select.image,
-          mail: info.receiver || info.mail
-        })
-      }else if(info.receiver && info.receiver.toLowerCase()===userInfo.current.mail.toLowerCase()){
-        const select = friendInfo.find((item)=>(
-          item.mail===info.sender || item.mail === info.mail
-        ))
-        setReceiver({
-            name: select.name,
-            image: select.image,
-            mail: info.sender || info.mail
-        })
+      setReceiver({
+        name: matchedGroup.split('%')[1],
+        mail: info.sender || info.mail,
+      });
+
+    // receiver is group
+    } else if (info.receiver && !info.receiver.includes('@')) {
+      const matchedGroup = userInfo.current.groupList.find((i) => i.split('%')[0] === info.receiver);
+
+      if (!matchedGroup) return; // Ensure matchedGroup exists
+
+      const group_id = info.receiver
+        ? info.receiver + '%' + matchedGroup.split('%')[1] + '%'
+        : info.mail + '%' + info.name + '%';
+
+      const formData = new FormData();
+      formData.append('group_id', group_id);
+
+      const { data } = await axios.post('https://server-chat-app-iu9t.onrender.com/api/user/get-member', formData);
+
+      if (data.success) {
+        setGroupMember(data.message);
       }
-  }
+      setReceiver({
+        name: matchedGroup.split('%')[1],
+        mail: info.receiver || info.mail,
+      });
+
+    // receiver is friend
+    } else if (
+      (info.sender && info.sender.toLowerCase() === userInfo.current.mail.toLowerCase()) ||
+      (info.mail && info.mail.includes('@'))
+    ) {
+      const select =
+        friendInfo.find((item) => item.mail === info.receiver || item.mail === info.mail) || info.receiver;
+
+      if (!select) return; // Ensure select exists
+
+      setReceiver({
+        name: select.name,
+        image: select.image,
+        mail: info.receiver || info.mail,
+      });
+
+    } else if (info.receiver && info.receiver.toLowerCase() === userInfo.current.mail.toLowerCase()) {
+      const select = friendInfo.find((item) => item.mail === info.sender || item.mail === info.mail);
+
+      if (!select) return; // Ensure select exists
+
+      setReceiver({
+        name: select.name,
+        image: select.image,
+        mail: info.sender || info.mail,
+      });
+    }
+  };
+
+  // Call receiverInfo with your info object as needed
+  useEffect(() => {
+    const info = {}; // your info object
+    receiverInfo(info);
+  }, []);
 
   const quitGroup = async() => {
     socket.emit('exit_group', { group_member: userInfo.current.mail, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });

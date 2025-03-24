@@ -361,11 +361,6 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
     }
   };
 
-  // Call receiverInfo with your info object as needed
-  useEffect(() => {
-    const info = {}; // your info object
-    receiverInfo(info);
-  }, []);
 
   const quitGroup = async() => {
     socket.emit('exit_group', { group_member: userInfo.current.mail, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });

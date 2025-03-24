@@ -90,7 +90,7 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
         groupMember.push(selectedOptions[i].value)
       }
 
-      socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: receiver.mail + '%' + receiver.name + '%' });
+      socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: receiver.mail + '%' + receiver.name + '%', creator: userInfo.current.mail });
     }
   }
 
@@ -100,6 +100,14 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
       for(let i =0; i<msg.msgData.length; i++){
           if (msg.msgData[i].mail === userInfo.current.mail) {
             userInfo.current = msg.msgData[i]
+            if(msg.creator===userInfo.current.mail){
+              setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
+              setGroupMember(msg.msgData)
+              setAddGroup(false)
+              setSelectedOptions([])
+              setGroupName('')
+              setIsInvite(false)
+            }
           } 
           else {
             setFriendInfo((prev) => {
@@ -109,12 +117,12 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
             });
           }
       }
-    setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
-    setGroupMember(msg.msgData)
-    setAddGroup(false)
-    setSelectedOptions([])
-    setGroupName('')
-    setIsInvite(false)
+    // setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
+    // setGroupMember(msg.msgData)
+    // setAddGroup(false)
+    // setSelectedOptions([])
+    // setGroupName('')
+    // setIsInvite(false)
     });
 
     socket.on('friend_added', (msg) => {

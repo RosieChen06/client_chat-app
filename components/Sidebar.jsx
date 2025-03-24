@@ -16,7 +16,7 @@ import { IoSearchOutline } from "react-icons/io5";
 import { RxExit } from "react-icons/rx";
 import { GoPersonAdd } from "react-icons/go";
 
-const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiver, friendInfo, setFriendInfo, setSwitchTo, swithTo, messages, groupMember, setGroupMember, isProfileEdit, setIsProfileEdit, setUserImage, setMessages, setIsOpenMessageRoom}) => {
+const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setReceiver, receiver, friendInfo, setFriendInfo, setSwitchTo, swithTo, messages, groupMember, setGroupMember, isProfileEdit, setIsProfileEdit, setUserImage, setMessages, setIsOpenMessageRoom}) => {
   const [addGroup, setAddGroup] = useState(false)
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [addFriend, setAddFriend] = useState(false)
@@ -275,8 +275,6 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
       return { ...msg, isShow };
   });
 
-  const prevInfoRef = useRef(null);
-
   const receiverInfo = async (info) => {
     if (!info || (prevInfoRef.current && JSON.stringify(prevInfoRef.current) === JSON.stringify(info))) {
       return;
@@ -360,7 +358,6 @@ const Sidebar = ({groupName, setGroupName, userInfo, socket, setReceiver, receiv
       });
     }
   };
-
 
   const quitGroup = async() => {
     socket.emit('exit_group', { group_member: userInfo.current.mail, group_id: receiver.mail + '%' + receiver.name + '%', member_left: groupMember.length });

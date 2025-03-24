@@ -30,6 +30,7 @@ export default function Home() {
   const [isProfileEdit, setIsProfileEdit] = useState(false)
   const [userImage, setUserImage] = useState(null);
   const [groupName, setGroupName] = useState('')
+  const prevInfoRef = useRef(null);
 
   const [isOpenMessageRoom, setIsOpenMessageRoom] = useState(false)
 
@@ -62,6 +63,7 @@ export default function Home() {
                   setIsProfileEdit={setIsProfileEdit}
                   userImage={userImage}
                   setGroupName={setGroupName}
+                  prevInfoRef={prevInfoRef}
                 />
               </div>
 
@@ -86,6 +88,7 @@ export default function Home() {
                   setUserImage={setUserImage}
                   setMessages={setMessages}
                   setIsOpenMessageRoom={setIsOpenMessageRoom}
+                  prevInfoRef={prevInfoRef}
                 />
               </div>
             </div>

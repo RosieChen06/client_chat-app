@@ -100,14 +100,6 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
       for(let i =0; i<msg.msgData.length; i++){
           if (msg.msgData[i].mail === userInfo.current.mail) {
             userInfo.current = msg.msgData[i]
-            if(msg.creator===userInfo.current.mail){
-              setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
-              setGroupMember(msg.msgData)
-              setAddGroup(false)
-              setSelectedOptions([])
-              setGroupName('')
-              setIsInvite(false)
-            }
           } 
           else {
             setFriendInfo((prev) => {
@@ -116,13 +108,15 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
                 });
             });
           }
+          if(msg.creator===userInfo.current.mail){
+            setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
+            setGroupMember(msg.msgData)
+            setAddGroup(false)
+            setSelectedOptions([])
+            setGroupName('')
+            setIsInvite(false)
+          }
       }
-    // setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
-    // setGroupMember(msg.msgData)
-    // setAddGroup(false)
-    // setSelectedOptions([])
-    // setGroupName('')
-    // setIsInvite(false)
     });
 
     socket.on('friend_added', (msg) => {
@@ -136,11 +130,6 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
         } 
         else {
           setFriendInfo((prev)=>[...prev, msg.msgData[i]]);
-          setReceiver({
-            name: msg.msgData[i].name,
-            mail: msg.msgData[i].mail,
-            image: msg.msgData[i].image,
-          })
           if(!isShowMore){
             setSwitchTo('Messages')
           }
@@ -148,6 +137,13 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
       }
       setAddFriend(false)
       setGroupName('')
+      if(msg.adder===userInfo.current.mail){
+        setReceiver({
+          name: msg.msgData[i].name,
+          mail: msg.msgData[i].mail,
+          image: msg.msgData[i].image,
+        })
+      }
     });
 
     socket.on('friend_remove', (msg) => {

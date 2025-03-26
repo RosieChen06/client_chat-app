@@ -109,11 +109,7 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
             });
           }
       }
-      console.log(msg.creator)
-      console.log(msg.group_name)
-      console.log(userInfo.current.mail)
       if(msg.creator===userInfo.current.mail){
-        console.log('bbb')
         setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
         setGroupMember(msg.msgData)
         setAddGroup(false)
@@ -134,21 +130,23 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
         } 
         else {
           setFriendInfo((prev)=>[...prev, msg.msgData[i]]);
-          if(!isShowMore){
-            setSwitchTo('Messages')
-          }
         }
       }
       setAddFriend(false)
       setGroupName('')
+      const friend = msg.msgData.filter((item)=>(item.mail!==msg.adder))
       if(msg.adder===userInfo.current.mail){
         setReceiver({
-          name: msg.msgData[i].name,
-          mail: msg.msgData[i].mail,
-          image: msg.msgData[i].image,
+          name: friend[0].name,
+          mail: friend[0].mail,
+          image: friend[0].image,
         })
+        if(!isShowMore){
+          setSwitchTo('Messages')
+        }
       }
     });
+    console.log(receiver)
 
     socket.on('friend_remove', (msg) => {
 

@@ -83,7 +83,7 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
       }
 
       groupMember.push(userInfo.current.mail)
-      socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: group_id + '%' + groupName + '%' });
+      socket.emit('create_group', { group_member: JSON.stringify(groupMember), group_id: group_id + '%' + groupName + '%', creator: userInfo.current.mail});
     }else{
 
       for(let i=0; i<selectedOptions.length; i++) {
@@ -108,14 +108,18 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
                 });
             });
           }
-          if(msg.creator===userInfo.current.mail){
-            setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
-            setGroupMember(msg.msgData)
-            setAddGroup(false)
-            setSelectedOptions([])
-            setGroupName('')
-            setIsInvite(false)
-          }
+      }
+      console.log(msg.creator)
+      console.log(msg.group_name)
+      console.log(userInfo.current.mail)
+      if(msg.creator===userInfo.current.mail){
+        console.log('bbb')
+        setReceiver({ name: msg.group_name.split('%')[1], mail: msg.group_name.split('%')[0] })
+        setGroupMember(msg.msgData)
+        setAddGroup(false)
+        setSelectedOptions([])
+        setGroupName('')
+        setIsInvite(false)
       }
     });
 

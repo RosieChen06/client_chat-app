@@ -264,8 +264,8 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
       const sender = String(item.sender); 
   
       return (
-        (receiver.toLowerCase() === userInfo.current.mail.toLowerCase() && sender.includes('@') ) ||
-        (sender.toLowerCase() === userInfo.current.mail.toLowerCase() && receiver.includes('@') )  ||
+        (receiver.toLowerCase() === userInfo.current.mail.toLowerCase() && sender.includes('@') && userInfo.current.friendList.includes(sender.toLowerCase()) ) ||
+        (sender.toLowerCase() === userInfo.current.mail.toLowerCase() && receiver.includes('@') && userInfo.current.friendList.includes(receiver.toLowerCase()) ) ||
         userInfo.current.groupList.some((i) =>
           i.split('%')[0] === receiver || i.split('%')[0] === sender
         )

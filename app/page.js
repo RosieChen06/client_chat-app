@@ -8,8 +8,8 @@ import { io } from "socket.io-client";
 import { Toaster } from 'react-hot-toast';
 import Script from 'next/script';
 
-// const socket = io("https://server-chat-app-iu9t.onrender.com");
-const socket = io("http://localhost:3001");
+const socket = io("https://server-chat-app-iu9t.onrender.com");
+// const socket = io("http://localhost:3001");
 
 const LazyChatRoom = React.lazy(() => import('@/components/ChatRoom'));
 const LazyOption = React.lazy(() => import('@/components/Option'));

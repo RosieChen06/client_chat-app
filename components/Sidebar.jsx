@@ -424,12 +424,18 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
                 ) ? '#f1f5f9' : ''
               }}
               onClick={() => {receiverInfo(item); setIsShowMore(false); setIsOpenMessageRoom(swithTo==='Messages'? true:!isSlideIn &&　window.innerWidth < 768  ?setIsSlideIn(true):'')}}>
-              {swithTo==='People' && item && item.mail.includes('@')? <img src={item.image} className="w-12 h-12 object-cover rounded-full" />
+              {swithTo==='People' && item && item.mail.includes('@')? 
+              <div className='w-[30%] flex justify-center'>
+                <img src={item.image} className="w-12 h-12 object-cover rounded-full" />
+              </div>
               :(item? item.receiver: null) === userInfo.current.mail
                 ? friendInfo.find((i) => i.mail === (item? item.sender: null))?.image
-                  ? <img src={friendInfo.find((i) => i.mail === (item? item.sender: null))?.image} className="w-12 h-12 object-cover rounded-full" />
+                  ? 
+                  <div className='w-[30%] flex justify-center'>
+                    <img src={friendInfo.find((i) => i.mail === (item? item.sender: null))?.image} className="w-12 h-12 object-cover rounded-full" />
+                  </div>
                   : (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col w-[30%]">
                       {/* 第一排一個圖片 */}
                       <div className="flex justify-center">
                         <img src={userInfo.current.image} className="w-6 h-6 object-cover rounded-full" />
@@ -442,18 +448,19 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
                     </div>
                     )
                     : friendInfo.find((i) => i.mail === (item ? item.receiver : null))?.image
-                      ? <img src={friendInfo.find((i) => i.mail === (item ? item.receiver : null))?.image} className="w-12 h-12 object-cover rounded-full" />
+                      ? 
+                      <div className='w-[30%] flex justify-center'>
+                        <img src={friendInfo.find((i) => i.mail === (item ? item.receiver : null))?.image} className="w-12 h-12 object-cover rounded-full" />
+                      </div>
                       : (
-                      <div className="flex flex-col">
+                      <div className="flex flex-col w-[30%]">
                         {/* 第一排一個圖片 */}
                         <div className="flex justify-center">
                           <img src={userInfo.current.image} className="w-6 h-6 object-cover rounded-full" />
                         </div>
                         {/* 第二排兩個圖片 */}
                         <div className="flex justify-center gap-1 mt-1">
-                          <div class="w-6 h-6 relative">
                           <img src={friendInfo.filter((i) => i.groupList.some((i) => i.split('%')[0] === (item ? item.receiver : null) || i.split('%')[0] === (item ? item.mail : null)))[0]?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} className="w-6 h-6 object-cover rounded-full" />
-                          </div>
                           <img src={friendInfo.filter((i) => i.groupList.some((i) => i.split('%')[0] === (item ? item.receiver : null) || i.split('%')[0] === (item ? item.mail : null)))[1]?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} className="w-6 h-6 object-cover rounded-full" />
                         </div>
                       </div>

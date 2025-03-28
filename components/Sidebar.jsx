@@ -451,7 +451,9 @@ const Sidebar = ({groupName, setGroupName, prevInfoRef, userInfo, socket, setRec
                         </div>
                         {/* 第二排兩個圖片 */}
                         <div className="flex justify-center gap-1 mt-1">
-                          <img src={friendInfo.filter((i) => i.groupList.some((i) => i.split('%')[0] === (item ? item.receiver : null) || i.split('%')[0] === (item ? item.mail : null)))[0]?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} className="w-6 h-6 object-cover rounded-full" />
+                          <div class="w-6 h-6 relative">
+                          <img src={friendInfo.filter((i) => i.groupList.some((i) => i.split('%')[0] === (item ? item.receiver : null) || i.split('%')[0] === (item ? item.mail : null)))[0]?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} className="w-12 h-6 object-cover rounded-full" />
+                          </div>
                           <img src={friendInfo.filter((i) => i.groupList.some((i) => i.split('%')[0] === (item ? item.receiver : null) || i.split('%')[0] === (item ? item.mail : null)))[1]?.image || 'https://i.postimg.cc/rzBzgkQL/360-F-65772719-A1-UV5k-Li5n-CEWI0-BNLLi-Fa-BPEk-Ubv5-Fv.jpg'} className="w-6 h-6 object-cover rounded-full" />
                         </div>
                       </div>

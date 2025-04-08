@@ -5,7 +5,7 @@ import { IoMdCloseCircle } from "react-icons/io";
 import { FaImage } from "react-icons/fa6";
 import { FaMicrophone } from "react-icons/fa";
 
-const InputField = ({socket, setMessages, receiver, userInfo}) => {
+const InputField = ({socket, setMessages, message, receiver, userInfo}) => {
     const [message, setMessage] = useState('')
     const [image, setImage] = useState([])
     const recognitionRef = useRef(null);

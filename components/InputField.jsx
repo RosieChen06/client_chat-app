@@ -5,7 +5,7 @@ import { IoMdCloseCircle } from "react-icons/io";
 import { FaImage } from "react-icons/fa6";
 import { FaMicrophone } from "react-icons/fa";
 
-const InputField = ({socket, setMessages, message, receiver, userInfo}) => {
+const InputField = ({socket, setMessages, receiver, userInfo}) => {
     const [message, setMessage] = useState('')
     const [image, setImage] = useState([])
     const recognitionRef = useRef(null);
@@ -13,7 +13,9 @@ const InputField = ({socket, setMessages, message, receiver, userInfo}) => {
 
     const sendMessage = async() => {
 
-        if (message.trim() || image.length===0) return;
+      console.log(message.trim().length===0)
+
+        if (message.trim().length===0 && image.length===0) return;
         const msgData = {
           message: message,
           datetime: Date.now(),
